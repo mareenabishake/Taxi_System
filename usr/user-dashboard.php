@@ -35,6 +35,19 @@
                      <li class="breadcrumb-item active">Overview</li>
                  </ol>
 
+                 <!-- Success Message -->
+                 <?php if (isset($_SESSION['success_msg'])): ?>
+                     <div class="alert alert-success alert-dismissible fade show" role="alert">
+                         <?php 
+                         echo $_SESSION['success_msg'];
+                         unset($_SESSION['success_msg']); // Clear the message after displaying
+                         ?>
+                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                             <span aria-hidden="true">&times;</span>
+                         </button>
+                     </div>
+                 <?php endif; ?>
+
                  <!-- Icon Cards-->
                  
                  <div class="row">

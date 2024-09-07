@@ -96,25 +96,35 @@
                     <div class="card-body">
                         <!--Add Trip Feedback Form-->
                         <form method="POST">
-                            <div class="form-group">
-                                <label for="tf_cname">Customer Name</label>
-                                <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_fname;?> <?php echo $trip_details->u_lname;?>" id="tf_cname" name="tf_cname">
-                            </div>
-                            <div class="form-group">
-                                <label for="tf_dname">Driver Name</label>
-                                <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_driver;?>" id="tf_dname" name="tf_dname">
-                            </div>
-                            <div class="form-group">
-                                <label for="tf_vname">Vehicle Type</label>
-                                <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_type;?>" id="tf_vname" name="tf_vname">
-                            </div>
-                            <div class="form-group">
-                                <label for="tf_from">Pickup Location</label>
-                                <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_pickup;?>" id="tf_from" name="tf_from">
-                            </div>
-                            <div class="form-group">
-                                <label for="tf_to">Drop-off Location</label>
-                                <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_drop;?>" id="tf_to" name="tf_to">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="tf_cname">Customer Name</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_fname;?> <?php echo $trip_details->u_lname;?>" id="tf_cname" name="tf_cname">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tf_dname">Driver Name</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_driver;?>" id="tf_dname" name="tf_dname">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tf_vname">Vehicle Type</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_type;?>" id="tf_vname" name="tf_vname">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="tf_from">Pickup Location</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_pickup;?>" id="tf_from" name="tf_from">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tf_to">Drop-off Location</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo $trip_details->u_car_drop;?>" id="tf_to" name="tf_to">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tf_date">Date</label>
+                                        <input type="text" required readonly class="form-control" value="<?php echo date('Y-m-d'); ?>" id="tf_date" name="tf_date">
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="tf_feedback_text">Your Feedback</label>
