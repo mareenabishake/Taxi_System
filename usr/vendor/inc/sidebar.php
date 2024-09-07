@@ -45,7 +45,6 @@
             <h6 class="dropdown-header"><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></h6>
             <a class="dropdown-item" href="user-view-profile.php">View</a>
             <a class="dropdown-item" href="user-update-profile.php">Update</a>
-            <a class="dropdown-item" href="user-change-pwd.php">Change Password</a>
 
         </div>
     </li>

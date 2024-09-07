@@ -62,7 +62,6 @@
                      </ul>
                      <div class="card-body">
                          <a href="user-update-profile.php" class="btn btn-outline-primary card-link "><i class="fa fa-user-edit"></i> Update Profile</a>
-                         <a href="user-change-pwd.php" class="btn btn-outline-primary card-link"><i class="fa fa-key"></i> Change Password</a>
                      </div>
                  </div>
                  <?php }?>
