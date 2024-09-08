@@ -19,10 +19,34 @@ if (isset($_POST['book_vehicle'])) {
     $u_car_book_status = $_POST['u_car_book_status'];
     $v_id = $_GET['v_id']; // Get vehicle ID from URL
 
+    // Fetch vehicle details including cost
+    $vehicle_query = "SELECT v_cost FROM tms_vehicle WHERE v_id = ?";
+    $vehicle_stmt = $mysqli->prepare($vehicle_query);
+    $vehicle_stmt->bind_param('i', $v_id);
+    $vehicle_stmt->execute();
+    $vehicle_result = $vehicle_stmt->get_result();
+    $vehicle_data = $vehicle_result->fetch_assoc();
+    $rate_per_km = $vehicle_data['v_cost'];
+    $vehicle_stmt->close();
+
+    // Use your Google Maps API key here
+    $apiKey = 'AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk';
+    
+    $distance = calculateDistance($u_car_pickup, $u_car_drop, $apiKey);
+    
+    if ($distance !== null) {
+        // Calculate hire cost based on distance and vehicle-specific rate
+        $u_car_hire = $distance * $rate_per_km;
+        $u_car_distance = $distance; // Store the total distance
+    } else {
+        // Handle error - couldn't calculate distance
+        $err = "Unable to calculate distance. Please check the addresses and try again.";
+    }
+
     // Update the booking in tms_user
-    $query = "UPDATE tms_user SET u_car_type=?, u_car_bookdate=?, u_car_regno=?, u_car_driver=?, u_car_driver_contact=?, u_car_pickup=?, u_car_drop=?, u_car_hire=?, u_car_book_status=? WHERE u_id=?";
+    $query = "UPDATE tms_user SET u_car_type=?, u_car_bookdate=?, u_car_regno=?, u_car_driver=?, u_car_driver_contact=?, u_car_pickup=?, u_car_drop=?, u_car_distance=?, u_car_hire=?, u_car_book_status=? WHERE u_id=?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('sssssssssi', $u_car_type, $u_car_bookdate, $u_car_regno, $u_car_driver, $u_car_driver_contact, $u_car_pickup, $u_car_drop, $u_car_hire, $u_car_book_status, $u_id);
+    $stmt->bind_param('sssssssddsi', $u_car_type, $u_car_bookdate, $u_car_regno, $u_car_driver, $u_car_driver_contact, $u_car_pickup, $u_car_drop, $u_car_distance, $u_car_hire, $u_car_book_status, $u_id);
     $stmt->execute();
 
     // If booking is successful, update the vehicle status to 'Busy'
@@ -40,6 +64,20 @@ if (isset($_POST['book_vehicle'])) {
 
     $stmt->close();
 }
+
+// Add this function after the existing PHP code
+function calculateDistance($origin, $destination, $apiKey) {
+    $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . urlencode($origin) . "&destinations=" . urlencode($destination) . "&key=" . $apiKey;
+    $response = file_get_contents($url);
+    $data = json_decode($response, true);
+    
+    if (isset($data['rows'][0]['elements'][0]['distance']['value'])) {
+        // Convert meters to kilometers
+        return $data['rows'][0]['elements'][0]['distance']['value'] / 1000;
+    }
+    return null;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -126,22 +164,30 @@ if (isset($_POST['book_vehicle'])) {
                                 <input type="date" class="form-control" id="exampleInputEmail1" name="u_car_bookdate">
                             </div>
                             <div class="form-group">
-                                <label for="exampleInputEmail1">Pickup Point</label>
-                                <input type="text" class="form-control" id="exampleInputEmail1" name="u_car_pickup">
+                                <label for="pickup">Pickup Point</label>
+                                <input type="text" class="form-control" id="pickup" name="u_car_pickup" onchange="calculateHire()">
                             </div>
                             <div class="form-group">
-                                <label for="exampleInputEmail1">Drop Point</label>
-                                <input type="text" class="form-control" id="exampleInputEmail1" name="u_car_drop">
+                                <label for="drop">Drop Point</label>
+                                <input type="text" class="form-control" id="drop" name="u_car_drop" onchange="calculateHire()">
                             </div>
                             <div class="form-group">
-                                <label for="exampleInputEmail1">Total Hire</label>
-                                <input type="text" class="form-control" id="exampleInputEmail1" name="u_car_hire">
+                                <label for="total_distance">Total Distance (km)</label>
+                                <input type="text" class="form-control" id="total_distance" name="u_car_distance" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="hire">Total Hire</label>
+                                <input type="text" class="form-control" id="hire" name="u_car_hire" readonly>
                             </div>
                             <div class="form-group" style="display:none">
                                 <label for="exampleInputEmail1">Book Status</label>
                                 <input type="text" value="Pending" class="form-control" id="exampleInputEmail1" name="u_car_book_status">
                             </div>
-
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Price per km</label>
+                                <input type="text" value="<?php echo $row->v_cost; ?>" readonly class="form-control" name="u_car_cost">
+                            </div>
+                            <input type="hidden" id="vehicle_cost" value="<?php echo $row->v_cost; ?>">
                             <button type="submit" name="book_vehicle" class="btn btn-success">Confirm Booking</button>
                         </form>
                         <!-- End Form -->
@@ -204,6 +250,52 @@ if (isset($_POST['book_vehicle'])) {
         <script src="vendor/js/demo/chart-area-demo.js"></script>
         <!--INject Sweet alert js-->
         <script src="vendor/js/swal.js"></script>
+
+        <!-- Add this script in the head section or just before the closing </body> tag -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk&libraries=places"></script>
+        <script>
+        function calculateHire() {
+            var pickup = document.getElementById('pickup').value;
+            var drop = document.getElementById('drop').value;
+            var ratePerKm = parseFloat(document.getElementById('vehicle_cost').value);
+
+            if (pickup && drop) {
+                var service = new google.maps.DistanceMatrixService();
+                service.getDistanceMatrix(
+                    {
+                        origins: [pickup],
+                        destinations: [drop],
+                        travelMode: 'DRIVING',
+                        unitSystem: google.maps.UnitSystem.METRIC,
+                    }, function(response, status) {
+                        if (status == 'OK') {
+                            var origins = response.originAddresses;
+                            var destinations = response.destinationAddresses;
+
+                            for (var i = 0; i < origins.length; i++) {
+                                var results = response.rows[i].elements;
+                                for (var j = 0; j < results.length; j++) {
+                                    var element = results[j];
+                                    var distance = element.distance.value / 1000; // Convert meters to kilometers
+                                    var hire = distance * ratePerKm;
+                                    document.getElementById('total_distance').value = distance.toFixed(2);
+                                    document.getElementById('hire').value = hire.toFixed(2);
+                                }
+                            }
+                        }
+                    });
+            }
+        }
+
+        // Initialize Google Places Autocomplete for pickup and drop inputs
+        function initAutocomplete() {
+            new google.maps.places.Autocomplete(document.getElementById('pickup'));
+            new google.maps.places.Autocomplete(document.getElementById('drop'));
+        }
+
+        // Call initAutocomplete when the page loads
+        google.maps.event.addDomListener(window, 'load', initAutocomplete);
+        </script>
 
 </body>
 </html>

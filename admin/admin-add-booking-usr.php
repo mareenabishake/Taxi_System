@@ -5,7 +5,7 @@ include('vendor/inc/checklogin.php');
 check_login();
 $aid = $_SESSION['a_id'];
 
-// Add Booking Details
+// Add Booking
 if (isset($_POST['book_vehicle'])) {
     $u_id = $_GET['u_id'];
     $u_car_type = $_POST['u_car_type'];
@@ -17,11 +17,12 @@ if (isset($_POST['book_vehicle'])) {
     $u_car_drop = $_POST['u_car_drop'];
     $u_car_hire = $_POST['u_car_hire'];
     $u_car_book_status = $_POST['u_car_book_status'];
+    $u_car_distance = $_POST['u_car_distance'];
 
-    // Update the booking details in the tms_user
-    $query = "UPDATE tms_user SET u_car_type=?, u_car_bookdate=?, u_car_regno=?, u_car_driver=?, u_car_driver_contact=?, u_car_pickup=?, u_car_drop=?, u_car_hire=?, u_car_book_status=? WHERE u_id=?";
+    // Prepare SQL query 
+    $query = "UPDATE tms_user SET u_car_type=?, u_car_bookdate=?, u_car_regno=?, u_car_driver=?, u_car_driver_contact=?, u_car_pickup=?, u_car_drop=?, u_car_hire=?, u_car_book_status=?, u_car_distance=? WHERE u_id=?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('sssssssssi', $u_car_type, $u_car_bookdate, $u_car_regno, $u_car_driver, $u_car_driver_contact, $u_car_pickup, $u_car_drop, $u_car_hire, $u_car_book_status, $u_id);
+    $stmt->bind_param('ssssssssssi', $u_car_type, $u_car_bookdate, $u_car_regno, $u_car_driver, $u_car_driver_contact, $u_car_pickup, $u_car_drop, $u_car_hire, $u_car_book_status, $u_car_distance, $u_id);
     $stmt->execute();
 
     // If booking is successful, update the vehicle status to 'Busy'
@@ -47,8 +48,7 @@ if (isset($_POST['book_vehicle'])) {
 <?php include('vendor/inc/head.php'); ?>
 
 <body id="page-top">
-
-    <!--Navigation Bar -->
+    <!-- Navigation Bar -->
     <?php include("vendor/inc/nav.php"); ?>
     
 
@@ -61,9 +61,9 @@ if (isset($_POST['book_vehicle'])) {
         <div id="content-wrapper">
 
             <div class="container-fluid">
+                
                 <?php if (isset($succ)) { ?>
-                <!-- Alert code-->
-
+                <!-- code for a success alert -->
                 <script>
                 setTimeout(function() {
                         swal("Success!", "<?php echo $succ; ?>", "success");
@@ -94,7 +94,7 @@ if (isset($_POST['book_vehicle'])) {
                         Add Booking
                     </div>
                     <div class="card-body">
-                        <!-- User Form -->
+                        <!--  User Form -->
                         <?php
                         $aid = $_GET['u_id'];
                         $ret = "SELECT * FROM tms_user WHERE u_id=?";
@@ -122,14 +122,6 @@ if (isset($_POST['book_vehicle'])) {
                                 <label for="Address">Address</label>
                                 <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="Address" name="u_addr">
                             </div>
-                            <div class="form-group" style="display:none">
-                                <label for="Category">Category</label>
-                                <input type="text" class="form-control" id="Category" value="User" name="u_category">
-                            </div>
-                            <div class="form-group">
-                                <label for="Email address">Email address</label>
-                                <input type="email" value="<?php echo $row->u_email; ?>" class="form-control" name="u_email">
-                            </div>
                             <div class="form-group">
                                 <label for="Vehicle Category">Vehicle Category</label>
                                 <select class="form-control" name="u_car_type" id="u_car_type">
@@ -141,19 +133,18 @@ if (isset($_POST['book_vehicle'])) {
                                 </select>
                             </div>
                             <div class="form-group">
-                            <label for="Vehicle Registration Number">Vehicle Registration Number</label>
-                            <select class="form-control" name="u_car_regno" id="u_car_regno" required>
-                            <option value="">Select Vehicle Registration Number</option>
-                            <!-- Options will be populated based on AJAX response -->
-                            </select>
+                                <label for="Vehicle Registration Number">Vehicle Registration Number</label>
+                                <select class="form-control" name="u_car_regno" id="u_car_regno" required>
+                                    <option value="">Select Vehicle Registration Number</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                            <label for="Driver Name">Driver Name</label>
-                            <input type="text" class="form-control" name="u_car_driver" id="u_car_driver" readonly>
+                                <label for="Driver Name">Driver Name</label>
+                                <input type="text" class="form-control" name="u_car_driver" id="u_car_driver" readonly>
                             </div>
                             <div class="form-group">
-                            <label for="Driver Contact No">Driver Contact No</label>
-                            <input type="text" class="form-control" name="u_car_driver_contact" id="u_car_driver_contact" readonly>
+                                <label for="Driver Contact No">Driver Contact No</label>
+                                <input type="text" class="form-control" name="u_car_driver_contact" id="u_car_driver_contact" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="Booking Date">Booking Date</label>
@@ -161,15 +152,23 @@ if (isset($_POST['book_vehicle'])) {
                             </div>
                             <div class="form-group">
                                 <label for="Pickup Point">Pickup Point</label>
-                                <input type="text" class="form-control" id="Pickup Point" name="u_car_pickup">
+                                <input type="text" class="form-control" id="u_car_pickup" name="u_car_pickup">
                             </div>
                             <div class="form-group">
                                 <label for="Drop Point">Drop Point</label>
-                                <input type="text" class="form-control" id="Drop Point" name="u_car_drop">
+                                <input type="text" class="form-control" id="u_car_drop" name="u_car_drop">
+                            </div>
+                            <div class="form-group">
+                                <label for="Total Distance (km)">Total Distance (km)</label>
+                                <input type="text" class="form-control" id="u_car_distance" name="u_car_distance" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="Total Hire">Total Hire</label>
-                                <input type="text" class="form-control" id="Total Hire" name="u_car_hire">
+                                <input type="text" class="form-control" id="u_car_hire" name="u_car_hire" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="Price per Km">Price per Km</label>
+                                <input type="text" class="form-control" id="u_car_cost" name="u_car_cost" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="Booking Status">Booking Status</label>
@@ -180,7 +179,6 @@ if (isset($_POST['book_vehicle'])) {
                             </div>
                             <button type="submit" name="book_vehicle" class="btn btn-success">Confirm Booking</button>
                         </form>
-                        <!-- End Form -->
                         <?php } ?>
                     </div>
                 </div>
@@ -191,15 +189,16 @@ if (isset($_POST['book_vehicle'])) {
                 <?php include("vendor/inc/footer.php"); ?>
 
             </div>
+
         </div>
         
 
-        <!-- Scroll to Top Button-->
+        
         <a class="scroll-to-top rounded" href="#page-top">
             <i class="fas fa-angle-up"></i>
         </a>
 
-        <!-- Logout code-->
+        <!-- Logout Modal-->
         <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModal" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -218,31 +217,20 @@ if (isset($_POST['book_vehicle'])) {
             </div>
         </div>
 
-        <!-- Bootstrap code-->
+        <!-- Bootstrap-->
         <script src="vendor/jquery/jquery.min.js"></script>
         <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
         <!-- Core plugin JavaScript code-->
         <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-        <!-- Page level plugin JavaScript code-->
-        <script src="vendor/chart.js/Chart.min.js"></script>
-        <script src="vendor/datatables/jquery.dataTables.js"></script>
-        <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-
-        <!-- Custom scripts for all pages code-->
+       
         <script src="vendor/js/sb-admin.min.js"></script>
-
-        <!-- Demo scripts for this page code-->
-        <script src="vendor/js/demo/datatables-demo.js"></script>
-        <script src="vendor/js/demo/chart-area-demo.js"></script>
-
-        <!--INject Sweet alert js-->
-        <script src="vendor/js/swal.js"></script>
 
         <!-- JavaScript to handle dynamic dropdown population -->
         <script>
         $(document).ready(function() {
+            // Load vehicle registration numbers based on car type
             $('#u_car_type').change(function() {
                 var car_type = $(this).val();
                 $.ajax({
@@ -254,38 +242,71 @@ if (isset($_POST['book_vehicle'])) {
                     }
                 });
             });
+
+            // Load driver details and price per km based on vehicle registration number
+            $('#u_car_regno').change(function() {
+                var v_reg_no = $(this).val();
+                $.ajax({
+                    url: "get_driver_details.php",
+                    method: "POST",
+                    data: { v_reg_no: v_reg_no },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (!data.error) {
+                            $('#u_car_driver').val(data.v_driver);
+                            $('#u_car_driver_contact').val(data.v_driver_contact);
+                            $('#u_car_cost').val(data.v_cost); // Price per km
+                        } else {
+                            alert(data.error);
+                        }
+                    }
+                });
+            });
+
+            // Calculate total hire based on distance and price per km
+            function calculateHire() {
+                var pickup = $('#u_car_pickup').val();
+                var drop = $('#u_car_drop').val();
+                var ratePerKm = parseFloat($('#u_car_cost').val());
+
+                if (pickup && drop) {
+                    var service = new google.maps.DistanceMatrixService();
+                    service.getDistanceMatrix(
+                        {
+                            origins: [pickup],
+                            destinations: [drop],
+                            travelMode: 'DRIVING',
+                            unitSystem: google.maps.UnitSystem.METRIC,
+                        }, function(response, status) {
+                            if (status == 'OK') {
+                                var results = response.rows[0].elements[0];
+                                var distance = results.distance.value / 1000; // Convert to km
+                                var hire = distance * ratePerKm;
+                                $('#u_car_distance').val(distance.toFixed(2));
+                                $('#u_car_hire').val(hire.toFixed(2)); // Total hire = distance * ratePerKm
+                            }
+                        });
+                }
+            }
+
+            // Call calculateHire when the pickup or drop point changes
+            $('#u_car_pickup, #u_car_drop').on('change', calculateHire);
         });
         </script>
 
-<script>
-$(document).ready(function() {
-    $('#u_car_type').change(function() {
-        var car_type = $(this).val();
-        $.ajax({
-            url: "get_vehicle_regno.php",
-            method: "POST",
-            data: { car_type: car_type },
-            success: function(data) {
-                $('#u_car_regno').html(data);
-            }
-        });
-    });
-    
-    $('#u_car_regno').change(function() {
-        var v_reg_no = $(this).val();
-        $.ajax({
-            url: "get_driver_details.php",
-            method: "POST",
-            data: { v_reg_no: v_reg_no },
-            dataType: 'json',
-            success: function(data) {
-                $('#u_car_driver').val(data.v_driver);
-                $('#u_car_driver_contact').val(data.v_driver_contact);
-            }
-        });
-    });
-});
-</script>
+        <!-- Inject SweetAlert and Google Maps API -->
+        <script src="vendor/js/swal.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk&libraries=places"></script>
+        <script>
+        // Initialize Google Places Autocomplete for pickup and drop inputs
+        function initAutocomplete() {
+            new google.maps.places.Autocomplete(document.getElementById('u_car_pickup'));
+            new google.maps.places.Autocomplete(document.getElementById('u_car_drop'));
+        }
+
+        // Call initAutocomplete when the page loads
+        google.maps.event.addDomListener(window, 'load', initAutocomplete);
+        </script>
 
 </body>
 

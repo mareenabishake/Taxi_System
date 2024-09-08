@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 02, 2024 at 10:14 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Sep 08, 2024 at 08:24 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -103,6 +103,31 @@ CREATE TABLE `tms_syslogs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tms_trip_feedback`
+--
+
+CREATE TABLE `tms_trip_feedback` (
+  `tf_id` int(10) NOT NULL,
+  `tf_cname` varchar(100) NOT NULL,
+  `tf_dname` varchar(100) NOT NULL,
+  `tf_vname` varchar(50) NOT NULL,
+  `tf_date` date NOT NULL,
+  `tf_from` varchar(100) NOT NULL,
+  `tf_to` varchar(100) NOT NULL,
+  `tf_feedback_text` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tms_trip_feedback`
+--
+
+INSERT INTO `tms_trip_feedback` (`tf_id`, `tf_cname`, `tf_dname`, `tf_vname`, `tf_date`, `tf_from`, `tf_to`, `tf_feedback_text`) VALUES
+(1, 'Yomal Weerathunga', 'Thiwanka Werahara', 'Sedan', '2024-09-07', 'Wattala', 'Kandana', 'It was a good trip'),
+(2, 'Binada Mandiw', 'Denuwan Chamara', 'Sedan', '2024-09-08', 'Wattala, Sri Lanka', 'Homagama, Sri Lanka', 'Good driver');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tms_user`
 --
 
@@ -123,43 +148,27 @@ CREATE TABLE `tms_user` (
   `u_car_bookdate` varchar(200) NOT NULL,
   `u_car_pickup` text NOT NULL,
   `u_car_drop` text NOT NULL,
+  `u_car_distance` decimal(10,0) NOT NULL,
   `u_car_hire` int(100) NOT NULL,
-  `u_car_book_status` varchar(200) NOT NULL
+  `u_car_book_status` varchar(200) NOT NULL,
+  `u_car_payment_status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `tms_user`
 --
 
-INSERT INTO `tms_user` (`u_id`, `u_fname`, `u_lname`, `u_phone`, `u_license_or_ID`, `u_addr`, `u_category`, `u_email`, `u_pwd`, `u_car_type`, `u_car_regno`, `u_car_driver`, `u_car_driver_contact`, `u_car_bookdate`, `u_car_pickup`, `u_car_drop`, `u_car_hire`, `u_car_book_status`) VALUES
-(15, 'Binath', 'Hettiarachchi', '0776354097', '', 'Wattala', 'User', 'binath@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(18, 'Binada', 'Mandiw', '0764567431', '278946532V', 'Colombo', 'User', 'binada@gmail.com', '123', 'Sedan', 'CBD - 8953', 'Nihil Hesara', 763452341, '2024-08-22', 'Homagama', 'Kottawa', 300, 'Approved'),
-(19, 'Senaka', 'Batagoda', '0776354097', '', 'Wattala', 'User', 'senaka@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(22, 'Thenuka', 'Silva', '0776520098', '', 'Wattala', 'User', 'thenuka@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(24, 'Isuru', 'Dilhara', '0776520098', '', 'Balangoda', 'Driver', 'isuru@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(27, 'Koshal', 'Bandara', '0776354097', '', 'Colombo', 'Operator', 'koshal@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(32, 'Chanuka', 'Nisal', '0776354097', '', 'Wattala', 'User', 'chanuka@gmail.com', '123', 'Sedan', 'CAS - 6828', '', 0, '2024-08-15', 'Kandy', 'Kottawa', 10000, 'Approved'),
-(33, 'Thimedha', 'Viraj', '0776354097', '2354678D', 'Colombo', 'Driver', 'viraj@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(34, 'Jude', 'Silva', '0776354097', '34567890D', 'Balangoda', 'Driver', 'jude@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(38, 'Rusiru', 'Dilhara', '0773437650', '5467835D', 'Homagama', 'Driver', 'rusiru@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(39, 'Dineth', 'Bandara', '0770691800', '299064324V', 'Homagama', 'User', 'dineth@gmail.com', '123', 'Sedan', 'CBD - 5856', 'Janul Akash', 773456783, '2024-08-22', 'Kandy', 'Ella', 20000, 'Hire Ended'),
-(40, 'Janul', 'Akash', '0773456783', '645789342D', 'Nrammala', 'Driver', 'janul@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(41, 'Nihil', 'Hesara', '0763452341', '5467895D', 'Negambo', 'Driver', 'nihil@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(42, 'Nihal', 'Weerathunga', '0776354342', '3456784321D', 'Bandarawela', 'Driver', 'nihal@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(47, 'Vimukthi', 'Werahara', '0776767890', '456789V', 'Kadana', 'User', 'vimukthi@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(48, 'Ranjan', 'Ramanayaka', '0772345456', '55566677788V', 'Colombo', 'User', 'ranjan@gmail.com', '123', 'Sedan', 'KV - 8829', 'Thimedha Viraj', 776354097, '2024-09-02', 'Wattala', 'Colombo', 2500, 'Hire Ended'),
-(49, 'Dhanuka', 'Weerathunga', '0776789098', 'D456789', 'Colombo', 'Driver', 'dhanuka@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(50, 'Navod', 'Deshan', '0778956456', '56778990V', 'Kadana', 'User', 'navod@gmail.com', '123', 'Sedan', 'CBD - 5856', 'Janul Akash', 773456783, '2024-09-02', 'Wattala', 'Colombo', 2500, 'Approved'),
-(52, 'Kusal', 'Perera', '0776767890', '56778990V', 'Kadana', 'User', 'kusal@gmail.com', '$2y$10$LmVn.pcvwJ28u8BlFqqHyu6/nYebc4.OHFhyU2UCtoH', '', '', '', 0, '', '', '', 0, ''),
-(53, 'Denuka', 'Werahara', '0776767890', '56778990V', 'Colombo', 'User', 'denuka@gmail.com', '$2y$10$.rIIBH8e9MKcuov4VWt6UupI6v5I4iq0jFb5BvFYG84', '', '', '', 0, '', '', '', 0, ''),
-(54, 'Nethaka', 'Werahara', '0776767890', '56778990V', 'Colombo', 'User', 'nethaka@gmail.com', '1234', '', '', '', 0, '', '', '', 0, ''),
-(55, 'Kamal', 'Ramanayaka', '0776767890', '56778990V', 'Colombo', 'User', 'kamal@gmail.com', '81dc9bdb52d04dc20036dbd8313ed055', '', '', '', 0, '', '', '', 0, ''),
-(56, 'Thiwanka', 'Werahara', '0776789045', 'D4565555', 'Colombo', 'Driver', 'thiwanka@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, ''),
-(57, 'Dunith', 'Wellalage', '0776789098', '3456789999V', 'Colombo', 'Operator', 'dunith@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, ''),
-(60, 'Nihal', 'Perera', '0776767890', '456789V', 'Colombo', 'User', 'nihal@gmail.com', '123', '', '', '', 0, '', '', '', 0, ''),
-(62, 'Menisha', 'Silva', '0774981233', '2758552734V', 'Kadana', 'Operator', 'menisha@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, ''),
-(63, 'Isuru', 'Batagoda', '0789076543', 'D345678', 'Rathmalana', 'Driver', 'isuru@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, ''),
-(64, 'Yomal', 'Weerathunga', '0753456783', '55566677788V', 'Colombo', 'User', 'yomal@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, '');
+INSERT INTO `tms_user` (`u_id`, `u_fname`, `u_lname`, `u_phone`, `u_license_or_ID`, `u_addr`, `u_category`, `u_email`, `u_pwd`, `u_car_type`, `u_car_regno`, `u_car_driver`, `u_car_driver_contact`, `u_car_bookdate`, `u_car_pickup`, `u_car_drop`, `u_car_distance`, `u_car_hire`, `u_car_book_status`, `u_car_payment_status`) VALUES
+(57, 'Dunith', 'Wellalage', '0776789098', '3456789999V', 'Colombo', 'Operator', 'dunith@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(62, 'Menisha', 'Silva', '0774981233', '2758552734V', 'Kadana', 'Operator', 'menisha@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(64, 'Yomal', 'Weerathunga', '0753456783', '55566677788V', 'Colombo', 'User', 'yomal@gmail.com', '202cb962ac59075b964b07152d234b70', 'Sedan', 'CBB - 5543', 'Thiwanka Werahara', 776789045, '2024-09-09', 'Wattala', 'Kandana', 0, 2000, 'Hire Ended', NULL),
+(65, 'Minuka', 'Hansaka', '0767896341', '2008356V', 'Wattala', 'User', 'minuka@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(66, 'Thimedha', 'Viraj', '0774565432', 'D4373884', 'Homagama', 'Driver', 'viraj@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(67, 'Rusiru', 'Dilhara', '0776567789', 'D0006654', 'Negambo', 'Driver', 'rusiru@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(68, 'Nihal', 'Ranasinghe', '0771212346', 'D774200', 'Kandana', 'Driver', 'nihal@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(69, 'Dinal', 'Induwara', '0775489765', 'D947562', 'Horana', 'Driver', 'dinal@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(70, 'Denuwan', 'Chamara', '0768908787', 'D006241', 'Colombo', 'Driver', 'denuwan@gmail.com', '202cb962ac59075b964b07152d234b70', '', '', '', 0, '', '', '', 0, 0, '', NULL),
+(71, 'Binada', 'Mandiw', '0789876569', '20016846V', 'Horana', 'User', 'binada@gmail.com', '202cb962ac59075b964b07152d234b70', 'Sedan', 'CBA - 3553', 'Denuwan Chamara', 768908787, '2024-09-08', 'Wattala, Sri Lanka', 'Homagama, Sri Lanka', 37, 7369, 'Hire Ended', NULL);
 
 -- --------------------------------------------------------
 
@@ -185,11 +194,11 @@ CREATE TABLE `tms_vehicle` (
 --
 
 INSERT INTO `tms_vehicle` (`v_id`, `v_name`, `v_reg_no`, `v_pass_no`, `v_driver`, `v_driver_contact`, `v_category`, `v_cost`, `v_dpic`, `v_status`) VALUES
-(5, 'BMW - 320D', 'KQ - 5707', '5', 'Nihal Weerathunga', 776354342, 'Sedan', 130, 'bmw320d.jpg', 'Available'),
-(6, 'Audi A5', 'CBD - 5856', '5', 'Janul Akash', 773456783, 'Sedan', 170, 'audi.jpg', 'Busy'),
-(7, 'BMW 520D', 'CBD - 8953', '5', 'Nihil Hesara', 763452341, 'Sedan', 150, 'bmw520d.jpg', 'Busy'),
-(10, 'BMW 520D', 'KV - 8829', '5', 'Thimedha Viraj', 776354097, 'Sedan', 160, 'bmw.jpg', 'Available'),
-(11, 'BMW 740Ie', 'CBA - 3553', '5', 'Rusiru Dilhara', 773437650, 'Sedan', 200, 'bmw740le.jpg', 'Available');
+(13, 'BMW 520D', 'KV - 8829', '5', 'Thimedha Viraj', 774565432, 'Sedan', 150, 'bmw.jpg', 'Available'),
+(14, 'GT-R', 'KO - 2777', '5', 'Rusiru Dilhara', 776567789, 'Sedan', 190, 'gtr.jpg', 'Available'),
+(15, 'BMW 320D', 'KQ - 5707', '5', 'Nihal Ranasinghe', 771212346, 'Sedan', 145, 'bmw320d.jpg', 'Available'),
+(16, 'Benz C-200', 'CBJ - 2604', '5', 'Dinal Induwara', 775489765, 'Sedan', 150, 'c200.jpg', 'Available'),
+(17, 'BMW 7 Series', 'CBA - 3553', '5', 'Denuwan Chamara', 768908787, 'Sedan', 200, 'bmw740le.jpg', 'Busy');
 
 --
 -- Indexes for dumped tables
@@ -218,6 +227,12 @@ ALTER TABLE `tms_pwd_resets`
 --
 ALTER TABLE `tms_syslogs`
   ADD PRIMARY KEY (`l_id`);
+
+--
+-- Indexes for table `tms_trip_feedback`
+--
+ALTER TABLE `tms_trip_feedback`
+  ADD PRIMARY KEY (`tf_id`);
 
 --
 -- Indexes for table `tms_user`
@@ -254,16 +269,22 @@ ALTER TABLE `tms_syslogs`
   MODIFY `l_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `tms_trip_feedback`
+--
+ALTER TABLE `tms_trip_feedback`
+  MODIFY `tf_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `tms_user`
 --
 ALTER TABLE `tms_user`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `tms_vehicle`
 --
 ALTER TABLE `tms_vehicle`
-  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
