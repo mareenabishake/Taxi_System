@@ -8,7 +8,7 @@
   if(isset($_GET['del']))
 {
       $id=intval($_GET['del']);
-      $adn="delete from tms_user where u_id=?";
+      $adn="delete from tms_operator where o_id=?";
       $stmt= $mysqli->prepare($adn);
       $stmt->bind_param('i',$id);
       $stmt->execute();
@@ -92,7 +92,7 @@
                                 </thead>
                                 <?php
 
-                    $ret="SELECT * FROM tms_user where u_category = 'Operator' "; 
+                    $ret="SELECT * FROM tms_operator"; 
                     $stmt= $mysqli->prepare($ret) ;
                     $stmt->execute() ;
                     $res=$stmt->get_result();
@@ -103,13 +103,13 @@
                                 <tbody>
                                     <tr>
                                         <td><?php echo $cnt;?></td>
-                                        <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                        <td><?php echo $row->u_phone;?></td>
-                                        <td><?php echo $row->u_addr;?></td>
-                                        <td><?php echo $row->u_email;?></td>
+                                        <td><?php echo $row->o_fname;?> <?php echo $row->o_lname;?></td>
+                                        <td><?php echo $row->o_phone;?></td>
+                                        <td><?php echo $row->o_addr;?></td>
+                                        <td><?php echo $row->o_email;?></td>
                                         <td>
-                                            <a href="admin-manage-single-operator.php?u_id=<?php echo $row->u_id;?>" class="badge badge-success">Update</a>
-                                            <a href="admin-manage-operator.php?del=<?php echo $row->u_id;?>" class="badge badge-danger">Delete</a>
+                                            <a href="admin-manage-single-operator.php?o_id=<?php echo $row->o_id;?>" class="badge badge-success">Update</a>
+                                            <a href="admin-manage-operator.php?del=<?php echo $row->o_id;?>" class="badge badge-danger">Delete</a>
                                         </td>
                                     </tr>
                                 </tbody>

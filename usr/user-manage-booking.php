@@ -81,7 +81,11 @@
                                         <td><span class="badge badge-success"><?php echo $row->u_car_book_status;?></span></td>
                                         <td>
                                             <?php if($row->u_car_book_status == "Hire Ended"){ ?>
-                                                <a href="user-make-payment.php?u_id=<?php echo $row->u_id;?>&amount=<?php echo urlencode($row->u_car_hire); ?>" class="badge badge-primary"><i class="fa fa-credit-card"></i> Make Payment</a>
+                                                <?php if($row->u_car_book_status == "Paid"){ ?>
+                                                    <span class="badge badge-success">Payment made</span>
+                                                <?php } else { ?>
+                                                    <a href="user-make-payment.php?u_id=<?php echo $row->u_id;?>&amount=<?php echo urlencode($row->u_car_hire); ?>" class="badge badge-primary"><i class="fa fa-credit-card"></i> Make Payment</a>
+                                                <?php } ?>
                                                 <a href="user-give-trip-feedback.php?u_id=<?php echo $row->u_id;?>" class="badge badge-info"><i class="fa fa-comment"></i> Give Feedback</a>
                                             <?php } else { ?>
                                                 <a href="user-delete-booking.php?u_id=<?php echo $row->u_id;?>" class="badge badge-danger"><i class="fa fa-trash"></i> Cancel</a>

@@ -7,34 +7,31 @@ $aid = $_SESSION['a_id'];
 
 // Add Operator code
 if (isset($_POST['add_operator'])) {
-    $u_fname = $_POST['u_fname'];
-    $u_lname = $_POST['u_lname'];
-    $u_phone = $_POST['u_phone'];
-    $u_license_or_ID = $_POST['u_license_or_ID'];
-    $u_addr = $_POST['u_addr'];
-    $u_email = $_POST['u_email'];
-    $u_pwd = $_POST['u_pwd'];
-    $u_category = $_POST['u_category'];
+    $o_fname = $_POST['o_fname'];
+    $o_lname = $_POST['o_lname'];
+    $o_phone = $_POST['o_phone'];
+    $o_nic = $_POST['o_nic'];
+    $o_addr = $_POST['o_addr'];
+    $o_email = $_POST['o_email'];
+    $o_pwd = $_POST['o_pwd'];
 
     // Hash the password using MD5
-    $hashed_pwd = md5($u_pwd);
+    $hashed_pwd = md5($o_pwd);
 
     // Prepare the SQL query
-    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_category, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO tms_operator (o_fname, o_lname, o_phone, o_nic, o_addr, o_email, o_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
         // Bind the parameters to the SQL query
-        $stmt->bind_param('ssssssss', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_category, $u_email, $hashed_pwd);
+        $stmt->bind_param('sssssss', $o_fname, $o_lname, $o_phone, $o_nic, $o_addr, $o_email, $hashed_pwd);
 
-        
         if ($stmt->execute()) {
             $succ = "Operator Added Successfully";
         } else {
             $err = "Error: Could not execute the query. Please try again. " . $stmt->error;
         }
 
-        
         $stmt->close();
     } else {
         $err = "Error: Could not prepare the query. Please try again. " . $mysqli->error;
@@ -48,38 +45,45 @@ if (isset($_POST['add_operator'])) {
 <?php include('vendor/inc/head.php'); ?>
 
 <body id="page-top">
+    <?php if (isset($succ)) { ?>
+        <!--This code for injecting an alert-->
+        <script>
+            setTimeout(function() {
+                swal("Success!", "<?php echo $succ; ?>", "success");
+            }, 100);
+        </script>
+    <?php } ?>
+    <?php if (isset($err)) { ?>
+        <!--This code for injecting an alert-->
+        <script>
+            setTimeout(function() {
+                swal("Failed!", "<?php echo $err; ?>", "error");
+            }, 100);
+        </script>
+    <?php } ?>
 
-    <!-- Navigation Bar -->
     <?php include("vendor/inc/nav.php"); ?>
-    
-    
+
     <div id="wrapper">
-        <!-- Sidebar -->
         <?php include("vendor/inc/sidebar.php"); ?>
-        
 
         <div id="content-wrapper">
             <div class="container-fluid">
                 <?php if (isset($succ)) { ?>
-                <!-- code for an alert -->
-                <script>
-                setTimeout(function() {
-                        swal("Success!", "<?php echo $succ; ?>", "success");
-                    },
-                    100);
-                </script>
+                    <script>
+                        setTimeout(function() {
+                            swal("Success!", "<?php echo $succ; ?>", "success");
+                        }, 100);
+                    </script>
                 <?php } ?>
                 <?php if (isset($err)) { ?>
-                
-                <script>
-                setTimeout(function() {
-                        swal("Failed!", "<?php echo $err; ?>", "error");
-                    },
-                    100);
-                </script>
+                    <script>
+                        setTimeout(function() {
+                            swal("Failed!", "<?php echo $err; ?>", "error");
+                        }, 100);
+                    </script>
                 <?php } ?>
 
-                <!-- Breadcrumbs -->
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="#">Telephone Operator</a>
@@ -93,100 +97,85 @@ if (isset($_POST['add_operator'])) {
                         Add Telephone Operator
                     </div>
                     <div class="card-body">
-                        <!--User Form -->
                         <form method="POST">
                             <div class="form-group">
-                                <label for="u_fname">First Name</label>
-                                <input type="text" required class="form-control" id="u_fname" name="u_fname">
+                                <label for="o_fname">First Name</label>
+                                <input type="text" required class="form-control" id="o_fname" name="o_fname">
                             </div>
                             <div class="form-group">
-                                <label for="u_lname">Last Name</label>
-                                <input type="text" class="form-control" id="u_lname" name="u_lname">
+                                <label for="o_lname">Last Name</label>
+                                <input type="text" class="form-control" id="o_lname" name="o_lname">
                             </div>
                             <div class="form-group">
-                                <label for="u_phone">Contact</label>
-                                <input type="text" class="form-control" id="u_phone" name="u_phone">
+                                <label for="o_phone">Contact</label>
+                                <input type="text" class="form-control" id="o_phone" name="o_phone">
                             </div>
                             <div class="form-group">
-                                <label for="u_license_or_ID">NIC No</label>
-                                <input type="text" class="form-control" id="u_license_or_ID" name="u_license_or_ID">
+                                <label for="o_nic">NIC No</label>
+                                <input type="text" class="form-control" id="o_nic" name="o_nic">
                             </div>
                             <div class="form-group">
-                                <label for="u_addr">Address</label>
-                                <input type="text" class="form-control" id="u_addr" name="u_addr">
-                            </div>
-                            <div class="form-group" style="display:none">
-                                <label for="u_category">Category</label>
-                                <input type="text" class="form-control" id="u_category" value="Operator" name="u_category">
+                                <label for="o_addr">Address</label>
+                                <input type="text" class="form-control" id="o_addr" name="o_addr">
                             </div>
                             <div class="form-group">
-                                <label for="u_email">Email Address</label>
-                                <input type="email" class="form-control" id="u_email" name="u_email">
+                                <label for="o_email">Email Address</label>
+                                <input type="email" class="form-control" id="o_email" name="o_email">
                             </div>
                             <div class="form-group">
-                                <label for="u_pwd">Password</label>
-                                <input type="password" class="form-control" id="u_pwd" name="u_pwd">
+                                <label for="o_pwd">Password</label>
+                                <input type="password" class="form-control" id="o_pwd" name="o_pwd">
                             </div>
 
                             <button type="submit" name="add_operator" class="btn btn-success">Add Telephone Operator</button>
                         </form>
-                       
                     </div>
                 </div>
 
                 <hr>
 
-                <!-- Footer -->
                 <?php include("vendor/inc/footer.php"); ?>
             </div>
-            
         </div>
-        
+    </div>
 
-        <!-- Scroll to Top Button -->
-        <a class="scroll-to-top rounded" href="#page-top">
-            <i class="fas fa-angle-up"></i>
-        </a>
-        
-        <!-- Logout code -->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModal" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="logoutModal">Ready to Leave?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-danger" href="admin-logout.php">Logout</a>
-                    </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger" href="admin-logout.php">Logout</a>
                 </div>
             </div>
         </div>
-        
-        <!-- Bootstrap -->
-        <script src="vendor/jquery/jquery.min.js"></script>
-        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    </div>
 
-        <!-- Core plugin JavaScript code -->
-        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-        <!-- Page level plugin JavaScript code -->
-        <script src="vendor/chart.js/Chart.min.js"></script>
-        <script src="vendor/datatables/jquery.dataTables.js"></script>
-        <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-        <!-- Custom scripts for all pages -->
-        <script src="vendor/js/sb-admin.min.js"></script>
+    <!-- Page level plugin JavaScript-->
+    <script src="vendor/chart.js/Chart.min.js"></script>
+    <script src="vendor/datatables/jquery.dataTables.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 
-        <!-- Demo scripts for this page -->
-        <script src="vendor/js/demo/datatables-demo.js"></script>
-        <script src="vendor/js/demo/chart-area-demo.js"></script>
-        
-        <!-- Inject Sweet alert js -->
-        <script src="vendor/js/swal.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin.min.js"></script>
+
 </body>
 </html>

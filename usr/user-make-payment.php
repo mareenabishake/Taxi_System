@@ -17,10 +17,17 @@ if (isset($_GET['u_id']) && isset($_GET['amount'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['make_payment'])) {
         // Process payment (implement your payment gateway logic here)
-        // Update payment status in the database
+        // Update booking status in the database to indicate payment
+        $update_query = "UPDATE tms_user SET u_car_book_status = 'Paid' WHERE u_id = ?";
+        $stmt = $mysqli->prepare($update_query);
+        $stmt->bind_param('i', $u_id);
+        $stmt->execute();
         
-        // For demonstration, we'll just set a success message
-        $_SESSION['success_msg'] = "Payment successful! Thank you for your payment.";
+        if ($stmt->affected_rows > 0) {
+            $_SESSION['success_msg'] = "Payment successful! Thank you for your payment.";
+        } else {
+            $_SESSION['error_msg'] = "Payment failed. Please try again.";
+        }
         
         // Redirect to the dashboard
         header("Location: user-dashboard.php");

@@ -6,36 +6,29 @@ check_login();
 $aid = $_SESSION['a_id'];
 
 // Update Driver Details code
-if (isset($_POST['update_user'])) {
-    $u_id = $_GET['u_id'];
-    $u_fname = $_POST['u_fname'];
-    $u_lname = $_POST['u_lname'];
-    $u_phone = $_POST['u_phone'];
-    $u_license_or_ID = $_POST['u_license_or_ID'];
-    $u_addr = $_POST['u_addr'];
-    $u_email = $_POST['u_email'];
-    $u_pwd = $_POST['u_pwd'];
-    $u_category = $_POST['u_category'];
-
-    // Hash the password using MD5
-    $hashed_pwd = md5($u_pwd);
+if (isset($_POST['update_driver'])) {
+    $d_id = $_GET['d_id'];
+    $d_fname = $_POST['d_fname'];
+    $d_lname = $_POST['d_lname'];
+    $d_phone = $_POST['d_phone'];
+    $d_license = $_POST['d_license'];
+    $d_addr = $_POST['d_addr'];
+    $d_email = $_POST['d_email'];
 
     // Prepare the SQL query
-    $query = "UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_license_or_ID=?, u_addr=?, u_category=?, u_email=?, u_pwd=? WHERE u_id=?";
+    $query = "UPDATE tms_driver SET d_fname=?, d_lname=?, d_phone=?, d_license=?, d_addr=?, d_email=? WHERE d_id=?";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
         // Bind the parameters to the SQL query
-        $stmt->bind_param('ssssssssi', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_category, $u_email, $hashed_pwd, $u_id);
+        $stmt->bind_param('ssisssi', $d_fname, $d_lname, $d_phone, $d_license, $d_addr, $d_email, $d_id);
 
-        
         if ($stmt->execute()) {
             $succ = "Driver Updated";
         } else {
             $err = "Error: Could not execute the update. Please try again.";
         }
 
-        
         $stmt->close();
     } else {
         $err = "Error: Could not prepare the query. Please try again.";
@@ -96,8 +89,8 @@ if (isset($_POST['update_user'])) {
                     <div class="card-body">
                         <!-- Form -->
                         <?php
-                        $aid = $_GET['u_id'];
-                        $ret = "SELECT * FROM tms_user WHERE u_id=?";
+                        $aid = $_GET['d_id'];
+                        $ret = "SELECT * FROM tms_driver WHERE d_id=?";
                         $stmt = $mysqli->prepare($ret);
                         
                         if ($stmt) {
@@ -109,41 +102,31 @@ if (isset($_POST['update_user'])) {
                         
                         <form method="POST">
                             <div class="form-group">
-                                <label for="u_fname">First Name</label>
-                                <input type="text" value="<?php echo $row->u_fname; ?>" required class="form-control" id="u_fname" name="u_fname">
+                                <label for="d_fname">First Name</label>
+                                <input type="text" value="<?php echo $row->d_fname; ?>" required class="form-control" id="d_fname" name="d_fname">
                             </div>
                             <div class="form-group">
-                                <label for="u_lname">Last Name</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_lname; ?>" id="u_lname" name="u_lname">
+                                <label for="d_lname">Last Name</label>
+                                <input type="text" class="form-control" value="<?php echo $row->d_lname; ?>" id="d_lname" name="d_lname">
                             </div>
                             <div class="form-group">
-                                <label for="u_phone">Contact</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_phone; ?>" id="u_phone" name="u_phone">
+                                <label for="d_phone">Contact</label>
+                                <input type="text" class="form-control" value="<?php echo $row->d_phone; ?>" id="d_phone" name="d_phone">
                             </div>
                             <div class="form-group">
-                                <label for="u_license_or_ID">Driving License No</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_license_or_ID; ?>" id="u_license_or_ID" name="u_license_or_ID">
+                                <label for="d_license">Driving License No</label>
+                                <input type="text" class="form-control" value="<?php echo $row->d_license; ?>" id="d_license" name="d_license">
                             </div>
                             <div class="form-group">
-                                <label for="u_addr">Address</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="u_addr" name="u_addr">
+                                <label for="d_addr">Address</label>
+                                <input type="text" class="form-control" value="<?php echo $row->d_addr; ?>" id="d_addr" name="d_addr">
+                            </div>
+                            <div class="form-group">
+                                <label for="d_email">Email address</label>
+                                <input type="email" value="<?php echo $row->d_email; ?>" class="form-control" id="d_email" name="d_email">
                             </div>
 
-                            <div class="form-group" style="display:none">
-                                <label for="u_category">Category</label>
-                                <input type="text" class="form-control" id="u_category" value="Driver" name="u_category">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="u_email">Email address</label>
-                                <input type="email" value="<?php echo $row->u_email; ?>" class="form-control" id="u_email" name="u_email">
-                            </div>
-                            <div class="form-group">
-                                <label for="u_pwd">Password</label>
-                                <input type="password" class="form-control" value="<?php echo $row->u_pwd; ?>" id="u_pwd" name="u_pwd">
-                            </div>
-
-                            <button type="submit" name="update_user" class="btn btn-success">Update Driver</button>
+                            <button type="submit" name="update_driver" class="btn btn-success">Update Driver</button>
                         </form>
                         
                         <?php 

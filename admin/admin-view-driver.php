@@ -33,7 +33,7 @@
                  <div class="card mb-3">
                      <div class="card-header">
                          <i class="fas fa-users"></i>
-                         Registered Users
+                         Registered Drivers
                      </div>
                      <div class="card-body">
                          <div class="table-responsive">
@@ -43,13 +43,14 @@
                                          <th>#</th>
                                          <th>Name</th>
                                          <th>Contact</th>
+                                         <th>License</th>
                                          <th>Address</th>
                                          <th>Email</th>
                                      </tr>
                                  </thead>
                                  <?php
 
-                    $ret="SELECT * FROM tms_user where u_category = 'Driver'  ORDER BY RAND() LIMIT 1000  "; 
+                    $ret="SELECT * FROM tms_driver ORDER BY RAND() LIMIT 1000"; 
                     $stmt= $mysqli->prepare($ret) ;
                     $stmt->execute() ;
                     $res=$stmt->get_result();
@@ -61,10 +62,11 @@
                                  <tbody>
                                      <tr>
                                          <td><?php echo $cnt;?></td>
-                                         <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                         <td><?php echo $row->u_phone;?></td>
-                                         <td><?php echo $row->u_addr;?></td>
-                                         <td><?php echo $row->u_email;?></td>
+                                         <td><?php echo $row->d_fname;?> <?php echo $row->d_lname;?></td>
+                                         <td><?php echo $row->d_phone;?></td>
+                                         <td><?php echo $row->d_license;?></td>
+                                         <td><?php echo $row->d_addr;?></td>
+                                         <td><?php echo $row->d_email;?></td>
                                      </tr>
                                  </tbody>
                                  <?php $cnt = $cnt+1; }?>

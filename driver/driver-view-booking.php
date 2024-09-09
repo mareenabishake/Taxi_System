@@ -72,7 +72,7 @@
                                     SELECT u.*
                                     FROM tms_user u
                                     INNER JOIN tms_vehicle v ON u.u_car_regno = v.v_reg_no
-                                    WHERE v.v_driver = ? AND (u.u_car_book_status = 'Approved' OR u.u_car_book_status = 'Pending')
+                                    WHERE v.v_driver = ? AND (u.u_car_book_status = 'Approved' OR u.u_car_book_status = 'Pending' OR u.u_car_book_status = 'Hire Ended')
                                     ";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->bind_param('s', $driver_name);
@@ -91,7 +91,17 @@
                                         <td><?php echo $row->u_car_bookdate;?></td>
                                         <td><?php echo $row->u_car_regno;?></td>
                                         <td><?php echo $row->u_car_hire;?></td>
-                                        <td><?php if($row->u_car_book_status == "Pending"){ echo '<span class = "badge badge-warning">'.$row->u_car_book_status.'</span>'; } else { echo '<span class = "badge badge-success">'.$row->u_car_book_status.'</span>';}?></td>
+                                        <td>
+                                            <?php 
+                                            if($row->u_car_book_status == "Pending"){ 
+                                                echo '<span class="badge badge-warning">Pending</span>'; 
+                                            } elseif($row->u_car_book_status == "Hire Ended") {
+                                                echo '<span class="badge badge-info">Awaiting Payment</span>';
+                                            } elseif($row->u_car_book_status == "Approved") {
+                                                echo '<span class="badge badge-success">Approved</span>';
+                                            }
+                                            ?>
+                                        </td>
                                     </tr>
                                     <?php $cnt++; } ?>
 
