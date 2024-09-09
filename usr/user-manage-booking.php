@@ -55,6 +55,8 @@
                                     <tr>
                                         <th>Booking ID</th>
                                         <th>Vehicle Reg No</th>
+                                        <th>Driver Name</th>
+                                        <th>Driver Contact</th>
                                         <th>Pickup Location</th>
                                         <th>Return Location</th>
                                         <th>Amount</th>
@@ -67,9 +69,10 @@
                                 <tbody>
                                     <?php
                     $aid = $_SESSION['u_id'];
-                    $ret = "SELECT b.*, v.v_reg_no 
+                    $ret = "SELECT b.*, v.v_reg_no, d.d_fname, d.d_lname, d.d_phone 
                             FROM tms_bookings b
                             JOIN tms_vehicle v ON b.v_id = v.v_id
+                            LEFT JOIN tms_driver d ON v.d_id = d.d_id
                             WHERE b.u_id = ?";
                     $stmt = $mysqli->prepare($ret);
                     $stmt->bind_param('i', $aid);
@@ -81,6 +84,8 @@
                                     <tr>
                                         <td><?php echo $row->b_id;?></td>
                                         <td><?php echo $row->v_reg_no;?></td>
+                                        <td><?php echo $row->d_fname . ' ' . $row->d_lname;?></td>
+                                        <td><?php echo $row->d_phone;?></td>
                                         <td><?php echo $row->pickup_location;?></td>
                                         <td><?php echo $row->return_location;?></td>
                                         <td><?php echo $row->hire;?></td>
@@ -113,11 +118,11 @@
                                                     echo 'No action available';
                                                     break;
                                                 case "Ongoing":
-                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-sm btn-info">Give Feedback</a>';
+                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-primary btn-sm">Give Feedback</a>';
                                                     break;
                                                 case "Ended":
-                                                    echo '<a href="user-make-payment.php?b_id='.$row->b_id.'&amount='.urlencode($row->hire).'" class="btn btn-sm btn-success">Make Payment</a> ';
-                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-sm btn-info">Give Feedback</a>';
+                                                    echo '<a href="user-make-payment.php?b_id='.$row->b_id.'&amount='.urlencode($row->hire).'" class="btn btn-success btn-sm mr-2">Make Payment</a>';
+                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-primary btn-sm">Give Feedback</a>';
                                                     break;
                                                 default:
                                                     echo 'No action available';

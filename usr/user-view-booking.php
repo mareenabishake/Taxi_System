@@ -45,6 +45,8 @@
                                 <thead>
                                     <tr>
                                         <th>Booking ID</th>
+                                        <th>Driver Name</th>
+                                        <th>Driver Contact No</th>
                                         <th>Vehicle Type</th>
                                         <th>Vehicle Reg. No</th>
                                         <th>Pickup Location</th>
@@ -56,9 +58,10 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $ret = "SELECT b.*, v.v_category, v.v_reg_no
+                                    $ret = "SELECT b.*, v.v_category, v.v_reg_no, d.d_fname, d.d_lname, d.d_phone
                                             FROM tms_bookings b
                                             JOIN tms_vehicle v ON b.v_id = v.v_id
+                                            LEFT JOIN tms_driver d ON v.d_id = d.d_id
                                             WHERE b.u_id = ?";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->bind_param('i', $uid);
@@ -68,6 +71,8 @@
                                     ?>
                                         <tr>
                                             <td><?php echo $row->b_id; ?></td>
+                                            <td><?php echo $row->d_fname . ' ' . $row->d_lname; ?></td>
+                                            <td><?php echo $row->d_phone; ?></td>
                                             <td><?php echo $row->v_category; ?></td>
                                             <td><?php echo $row->v_reg_no; ?></td>
                                             <td><?php echo $row->pickup_location; ?></td>
