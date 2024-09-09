@@ -44,19 +44,19 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Trip ID</th>
-                                        <th>User Name</th>
-                                        <th>Rating</th>
+                                        <th>Pickup Location</th>
+                                        <th>Return Location</th>
+                                        <th>Booking Date</th>
                                         <th>Feedback</th>
-                                        <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $ret = "SELECT tf.*, u.u_fname, u.u_lname 
+                                    $ret = "SELECT tf.*, b.pickup_location, b.return_location, b.b_date 
                                             FROM tms_trip_feedback tf
-                                            JOIN tms_user u ON tf.u_id = u.u_id
-                                            WHERE tf.d_id = ?
-                                            ORDER BY tf.f_date DESC";
+                                            JOIN tms_bookings b ON tf.b_id = b.b_id
+                                            WHERE b.d_id = ?
+                                            ORDER BY b.b_date DESC";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->bind_param('i', $d_id);
                                     $stmt->execute();
@@ -67,10 +67,10 @@
                                         <tr>
                                             <td><?php echo $cnt;?></td>
                                             <td><?php echo $row->b_id;?></td>
-                                            <td><?php echo $row->u_fname . ' ' . $row->u_lname;?></td>
-                                            <td><?php echo $row->f_rating;?></td>
-                                            <td><?php echo $row->f_content;?></td>
-                                            <td><?php echo $row->f_date;?></td>
+                                            <td><?php echo $row->pickup_location;?></td>
+                                            <td><?php echo $row->return_location;?></td>
+                                            <td><?php echo $row->b_date;?></td>
+                                            <td><?php echo $row->tf_feedback_text;?></td>
                                         </tr>
                                     <?php
                                         $cnt++;
