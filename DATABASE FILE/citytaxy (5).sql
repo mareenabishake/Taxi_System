@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 09, 2024 at 07:57 AM
+-- Generation Time: Sep 09, 2024 at 09:59 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -59,6 +59,13 @@ CREATE TABLE `tms_bookings` (
   `hire` decimal(10,0) NOT NULL,
   `b_status` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tms_bookings`
+--
+
+INSERT INTO `tms_bookings` (`b_id`, `u_id`, `v_id`, `d_id`, `b_date`, `pickup_location`, `return_location`, `distance`, `hire`, `b_status`) VALUES
+(1, 72, 19, 1, '2024-09-09', 'Wattala, Sri Lanka', 'Colombo, Sri Lanka', 9, 1782, 'Approved');
 
 -- --------------------------------------------------------
 
@@ -219,11 +226,8 @@ CREATE TABLE `tms_vehicle` (
 --
 
 INSERT INTO `tms_vehicle` (`v_id`, `d_id`, `v_name`, `v_reg_no`, `v_pass_no`, `v_category`, `v_cost`, `v_dpic`, `v_status`) VALUES
-(13, 0, 'BMW 520D', 'KV - 8829', '5', 'Sedan', 150, 'bmw.jpg', 'Available'),
-(14, 0, 'GT-R', 'KO - 2777', '5', 'Sedan', 190, 'gtr.jpg', 'Available'),
-(15, 0, 'BMW 320D', 'KQ - 5707', '5', 'Sedan', 145, 'bmw320d.jpg', 'Available'),
-(16, 0, 'Benz C-200', 'CBJ - 2604', '5', 'Sedan', 150, 'c200.jpg', 'Available'),
-(17, 0, 'BMW 7 Series', 'CBA - 3553', '5', 'Sedan', 200, 'bmw740le.jpg', 'Busy');
+(18, 3, 'BMW 520D', 'KV - 8829', '5', 'Sedan', 150, 'bmw.jpg', 'Available'),
+(19, 1, 'BMW 320D', 'CBB - 5543', '5', 'Sedan', 200, 'bmw320d.jpg', 'Busy');
 
 --
 -- Indexes for dumped tables
@@ -285,7 +289,7 @@ ALTER TABLE `tms_vehicle`
 -- AUTO_INCREMENT for table `tms_bookings`
 --
 ALTER TABLE `tms_bookings`
-  MODIFY `b_id` int(100) NOT NULL AUTO_INCREMENT;
+  MODIFY `b_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tms_driver`
@@ -321,7 +325,7 @@ ALTER TABLE `tms_user`
 -- AUTO_INCREMENT for table `tms_vehicle`
 --
 ALTER TABLE `tms_vehicle`
-  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
