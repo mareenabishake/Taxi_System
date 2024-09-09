@@ -4,6 +4,16 @@ include('vendor/inc/config.php');
 include('vendor/inc/checklogin.php');
 check_login();
 $d_id = $_SESSION['d_id'];
+
+if(isset($_SESSION['success'])) {
+    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            ' . $_SESSION['success'] . '
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+          </div>';
+    unset($_SESSION['success']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +36,12 @@ $d_id = $_SESSION['d_id'];
 
     <!-- Custom styles for this template-->
     <link href="vendor/css/sb-admin.css" rel="stylesheet">
+
+    <style>
+        .alert-dismissible {
+            padding-right: 4rem;
+        }
+    </style>
 
 </head>
 
@@ -126,7 +142,7 @@ $d_id = $_SESSION['d_id'];
                                     // Fetch bookings related to the logged-in driver
                                     $ret = "SELECT b.b_id, b.b_date, b.pickup_location, b.return_location, b.distance, b.hire, b.b_status
                                             FROM tms_bookings b
-                                            WHERE b.d_id = ? AND (b.b_status = 'Approved' OR b.b_status = 'Pending')
+                                            WHERE b.d_id = ?
                                             ORDER BY b.b_date DESC";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->bind_param('i', $d_id);

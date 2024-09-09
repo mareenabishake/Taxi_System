@@ -3,32 +3,38 @@
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
   check_login();
-  $aid=$_SESSION['u_id'];
-  //Add Booking
-  if(isset($_POST['approve_booking']))
-    {
-            $u_id = $_GET['u_id'];
-            //$u_fname=$_POST['u_fname'];
-            //$u_lname = $_POST['u_lname'];
-            //$u_phone=$_POST['u_phone'];
-            //$u_addr=$_POST['u_addr'];
-            //$u_car_type = $_POST['u_car_type'];
-           //$u_car_regno  = $_POST['u_car_regno'];
-            //$u_car_bookdate = $_POST['u_car_bookdate'];
-            $u_car_book_status  = $_POST['u_car_book_status'];
-            $query="update tms_user set  u_car_book_status=? where u_id=?";
-            $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('si',  $u_car_book_status, $u_id);
-            $stmt->execute();
-                if($stmt)
-                {
-                    $succ = "Booking Approved";
-                }
-                else 
-                {
-                    $err = "Please Try Again Later";
-                }
-            }
+  $d_id = $_SESSION['d_id'];
+
+  // Accept Trip
+  if(isset($_POST['accept_trip'])) {
+      $b_id = $_GET['b_id'];
+      $b_status = 'Ongoing';
+      
+      $query = "UPDATE tms_bookings SET b_status=? WHERE b_id=? AND d_id=?";
+      $stmt = $mysqli->prepare($query);
+      $stmt->bind_param('sii', $b_status, $b_id, $d_id);
+      $stmt->execute();
+      
+      if($stmt) {
+          $_SESSION['success'] = "Trip Accepted Successfully";
+          header("Location: driver-dashboard.php");
+          exit();
+      } else {
+          $err = "Please Try Again Later";
+      }
+  }
+
+  // Fetch booking details
+  $b_id = $_GET['b_id'];
+  $ret = "select b.*, u.u_fname, u.u_lname, u.u_phone, u.u_addr 
+          from tms_bookings b 
+          join tms_user u on b.u_id = u.u_id 
+          where b.b_id=? and b.d_id=?";
+  $stmt = $mysqli->prepare($ret);
+  $stmt->bind_param('ii', $b_id, $d_id);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $row = $res->fetch_object();
 ?>
  <!DOCTYPE html>
  <html lang="en">
@@ -48,115 +54,53 @@
          <div id="content-wrapper">
              
              <div class="container-fluid">
-                 <?php if(isset($succ)) {?>
-                 <!--This code for injecting an alert-->
-                 <script>
-                 setTimeout(function() {
-                         swal("Success!", "<?php echo $succ;?>!", "success");
-                     },
-                     100);
-                 </script>
-
-                 <?php } ?>
                  <?php if(isset($err)) {?>
-                 <!--This code for injecting an alert-->
-                 <script>
-                 setTimeout(function() {
-                         swal("Failed!", "<?php echo $err;?>!", "Failed");
-                     },
-                     100);
-                 </script>
-
+                     <!--This code for injecting error alert-->
+                     <div class="alert alert-danger">
+                         <strong>Error!</strong> <?php echo $err; ?>
+                     </div>
                  <?php } ?>
-                 
                  
                  <!-- Breadcrumbs-->
                  <ol class="breadcrumb">
                      <li class="breadcrumb-item">
                          <a href="#">Bookings</a>
                      </li>
-                     <li class="breadcrumb-item active">Approve</li>
+                     <li class="breadcrumb-item active">Trip Details</li>
                  </ol>
                  <hr>
                  <div class="card">
                      <div class="card-header">
-                         Approve Booking
+                         Trip Details
                      </div>
                      <div class="card-body">
-                         <!--Add User Form-->
-                         <?php
-            $aid=$_GET['u_id'];
-            $ret="select * from tms_user where u_id=?";
-            $stmt= $mysqli->prepare($ret) ;
-            $stmt->bind_param('i',$aid);
-            $stmt->execute() ;//ok
-            $res=$stmt->get_result();
-            //$cnt=1;
-            while($row=$res->fetch_object())
-        {
-        ?>
-                         
                          <form method="POST">
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">First Name</label>
-                                 <input type="text" readonly value="<?php echo $row->u_fname;?>" required class="form-control" id="exampleInputEmail1" name="u_fname">
+                                 <label>Client Name</label>
+                                 <input type="text" readonly value="<?php echo $row->u_fname . ' ' . $row->u_lname; ?>" class="form-control">
                              </div>
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">Last Name</label>
-                                 <input type="text" readonly class="form-control" value="<?php echo $row->u_lname;?>" id="exampleInputEmail1" name="u_lname">
+                                 <label>Client Phone</label>
+                                 <input type="text" readonly value="<?php echo $row->u_phone; ?>" class="form-control">
                              </div>
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">Contact</label>
-                                 <input type="text" readonly class="form-control" value="<?php echo $row->u_phone;?>" id="exampleInputEmail1" name="u_phone">
+                                 <label>Client Address</label>
+                                 <input type="text" readonly value="<?php echo $row->u_addr; ?>" class="form-control">
                              </div>
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">Address</label>
-                                 <input type="text" readonly class="form-control" value="<?php echo $row->u_addr;?>" id="exampleInputEmail1" name="u_addr">
+                                 <label>Pickup Location</label>
+                                 <input type="text" readonly value="<?php echo $row->pickup_location; ?>" class="form-control">
                              </div>
-
-                             <div class="form-group" style="display:none">
-                                 <label for="exampleInputEmail1">Category</label>
-                                 <input type="text" readonly class="form-control" id="exampleInputEmail1" value="User" name="u_category">
-                             </div>
-
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">Email address</label>
-                                 <input type="email" readonly value="<?php echo $row->u_email;?>" class="form-control" name="u_email"">
-            </div>
-
-            <div class=" form-group">
-                                 <label for="exampleInputEmail1">Vehicle Category</label>
-                                 <input type="email" readonly value="<?php echo $row->u_car_type;?>" class="form-control" name="u_car_type">
+                                 <label>Dropoff Location</label>
+                                 <input type="text" readonly value="<?php echo $row->return_location; ?>" class="form-control">
                              </div>
-                             
                              <div class="form-group">
-                                 <label for="exampleInputEmail1">Vehicle Registration Number</label>
-                                 <input type="email" readonly value="<?php echo $row->u_car_regno;?>" class="form-control" name="u_car_category">
+                                 <label>Booking Date</label>
+                                 <input type="text" readonly value="<?php echo $row->b_date; ?>" class="form-control">
                              </div>
-
-                             <div class="form-group">
-                                 <label for="exampleInputEmail1">Amount</label>
-                                 <input type="email" readonly value="<?php echo $row->u_car_hire;?>" class="form-control" name="u_car_hire">
-                             </div>
-
-
-                             <div class="form-group">
-                                 <label for="exampleInputEmail1">Booking Date</label>
-                                 <input type="text" readonly value="<?php echo $row->u_car_bookdate;?>" class="form-control" id="exampleInputEmail1" name="u_car_bookdate">
-                             </div>
-
-                             <div class="form-group">
-                                 <label for="exampleFormControlSelect1">Booking Status</label>
-                                 <select class="form-control" name="u_car_book_status" id="exampleFormControlSelect1">
-                                     <option>Approved</option>
-                                     <option>Pending</option>
-                                 </select>
-                             </div>
-
-                             <button type="submit" name="approve_booking" class="btn btn-success">Approve Booking</button>
+                             <button type="submit" name="accept_trip" class="btn btn-success">Accept Trip</button>
                          </form>
-                         <!-- End Form-->
-                         <?php }?>
                      </div>
                  </div>
 
@@ -178,23 +122,7 @@
          </a>
          
          <!-- Logout Modal-->
-         <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-             <div class="modal-dialog" role="document">
-                 <div class="modal-content">
-                     <div class="modal-header">
-                         <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                             <span aria-hidden="true">×</span>
-                         </button>
-                     </div>
-                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                     <div class="modal-footer">
-                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                         <a class="btn btn-danger" href="driver-logout.php">Logout</a>
-                     </div>
-                 </div>
-             </div>
-         </div>
+         <?php include("vendor/inc/logout.php");?>
          
          <!-- Bootstrap core JavaScript-->
          <script src="vendor/jquery/jquery.min.js"></script>
@@ -203,19 +131,8 @@
          <!-- Core plugin JavaScript-->
          <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-         <!-- Page level plugin JavaScript-->
-         <script src="vendor/chart.js/Chart.min.js"></script>
-         <script src="vendor/datatables/jquery.dataTables.js"></script>
-         <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-         
          <!-- Custom scripts for all pages-->
-         <script src="vendor/js/sb-admin.min.js"></script>
-
-         <!-- Demo scripts for this page-->
-         <script src="vendor/js/demo/datatables-demo.js"></script>
-         <script src="vendor/js/demo/chart-area-demo.js"></script>
-         <!--INject Sweet alert js-->
-         <script src="vendor/js/swal.js"></script>
+         <script src="js/sb-admin.min.js"></script>
          
  </body>
  </html>
