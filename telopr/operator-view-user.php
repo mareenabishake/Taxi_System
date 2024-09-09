@@ -49,8 +49,7 @@
                                  </thead>
                                  
                                  <?php
-
-                    $ret="SELECT * FROM tms_user where u_category = 'User' "; 
+                    $ret="SELECT * FROM tms_user"; 
                     $stmt= $mysqli->prepare($ret) ;
                     $stmt->execute() ;//ok
                     $res=$stmt->get_result();

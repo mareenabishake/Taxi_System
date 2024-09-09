@@ -10,7 +10,7 @@ if (isset($_POST['user_login'])) {
     $hashed_pwd = md5($u_pwd);
 
     // Prepare the SQL statement to retrieve the user details based on the email and hashed password
-    $stmt = $mysqli->prepare("SELECT u_id FROM tms_user WHERE u_email = ? AND u_pwd = ?");
+    $stmt = $mysqli->prepare("SELECT o_id FROM tms_operator WHERE o_email = ? AND o_pwd = ?");
     if ($stmt) {
         $stmt->bind_param('ss', $u_email, $hashed_pwd); // Bind email and hashed password parameters
         $stmt->execute(); // Execute the query
