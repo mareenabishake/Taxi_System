@@ -3,14 +3,7 @@ session_start();
 include('vendor/inc/config.php');
 include('vendor/inc/checklogin.php');
 check_login();
-
-if (isset($_SESSION['o_id'])) {
-    $aid = $_SESSION['o_id'];
-} else {
-    // Redirect to login page or handle the error
-    header("Location: operator-login.php");
-    exit();
-}
+//$oid = $_SESSION['o_id'];
 
 // Add Booking
 if (isset($_POST['book_vehicle'])) {
@@ -240,7 +233,7 @@ function calculateDistance($origin, $destination, $apiKey) {
                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-danger" href="admin-logout.php">Logout</a>
+                        <a class="btn btn-danger" href="operator-logout.php">Logout</a>
                     </div>
                 </div>
             </div>
