@@ -3,39 +3,38 @@
 session_start();
 include('vendor/inc/config.php');
 
-// Add User
-if (isset($_POST['add_user'])) {
-    $u_fname = $_POST['u_fname'];
-    $u_lname = $_POST['u_lname'];
-    $u_phone = $_POST['u_phone'];
-    $u_license = $_POST['u_license'];
-    $u_addr = $_POST['u_addr'];
-    $u_email = $_POST['u_email'];
-    $u_pwd = $_POST['u_pwd']; 
-    $u_category = $_POST['u_category'];
+// Add Driver
+if (isset($_POST['add_driver'])) {
+    $d_fname = $_POST['d_fname'];
+    $d_lname = $_POST['d_lname'];
+    $d_phone = $_POST['d_phone'];
+    $d_license = $_POST['d_license'];
+    $d_addr = $_POST['d_addr'];
+    $d_email = $_POST['d_email'];
+    $d_pwd = $_POST['d_pwd']; 
 
     // Hash the password using MD5
-    $hashed_pwd = md5($u_pwd);
+    $hashed_pwd = md5($d_pwd);
 
     // Prepare the SQL query
-    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_category, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO tms_driver (d_fname, d_lname, d_phone, d_license, d_addr, d_email, d_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
         // Bind the parameters to the SQL query
-        $stmt->bind_param('ssssssss', $u_fname, $u_lname, $u_phone, $u_license, $u_addr, $u_category, $u_email, $hashed_pwd);
+        $stmt->bind_param('sssssss', $d_fname, $d_lname, $d_phone, $d_license, $d_addr, $d_email, $hashed_pwd);
 
         // Execute the query
         if ($stmt->execute()) {
-            $succ = "Account Created. Proceed To Log In";
+            $succ = "Driver Account Created. Proceed To Log In";
         } else {
-            $err = "Error: Could not execute the query. Please try again.";
+            $err = "Error: Could not execute the query. " . $stmt->error;
         }
 
         // Close the statement
         $stmt->close();
     } else {
-        $err = "Error: Could not prepare the query. Please try again.";
+        $err = "Error: Could not prepare the query. " . $mysqli->error;
     }
 
     // Close the database connection
@@ -92,25 +91,25 @@ if (isset($_POST['add_user'])) {
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="form-label-group">
-                                    <input type="text" required class="form-control" id="exampleInputEmail1" name="u_fname">
+                                    <input type="text" required class="form-control" id="exampleInputEmail1" name="d_fname">
                                     <label for="firstName">First name</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-label-group">
-                                    <input type="text" class="form-control" id="u_lname" name="u_lname">
+                                    <input type="text" class="form-control" id="u_lname" name="d_lname">
                                     <label for="u_lname">Last name</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-label-group">
-                                    <input type="text" class="form-control" id="u_phone" name="u_phone">
+                                    <input type="text" class="form-control" id="u_phone" name="d_phone">
                                     <label for="u_phone">Contact</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-label-group">
-                                    <input type="text" class="form-control" id="u_license" name="u_license">
+                                    <input type="text" class="form-control" id="u_license" name="d_license">
                                     <label for="u_license">Licence No</label>
                                 </div>
                             </div>
@@ -119,7 +118,7 @@ if (isset($_POST['add_user'])) {
                     
                     <div class="form-group">
                         <div class="form-label-group">
-                            <input type="text" class="form-control" id="u_addr" name="u_addr">
+                            <input type="text" class="form-control" id="u_addr" name="d_addr">
                             <label for="u_addr">Address</label>
                         </div>
                     </div>
@@ -131,7 +130,7 @@ if (isset($_POST['add_user'])) {
                     </div>
                     <div class="form-group">
                         <div class="form-label-group">
-                            <input type="email" class="form-control" name="u_email">
+                            <input type="email" class="form-control" name="d_email">
                             <label for=" inputEmail">Email address</label>
                         </div>
                     </div>
@@ -139,13 +138,13 @@ if (isset($_POST['add_user'])) {
                         <div class="form-row">
                             <div class="col-md-12">
                                 <div class="form-label-group">
-                                    <input type="password" class="form-control" name="u_pwd" id="exampleInputPassword1">
+                                    <input type="password" class="form-control" name="d_pwd" id="exampleInputPassword1">
                                     <label for="inputPassword">Password</label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" name="add_user" class="btn btn-success">Create Account</button>
+                    <button type="submit" name="add_driver" class="btn btn-success">Create Account</button>
                 </form>
                 <!--End Form-->
                 <div class="text-center">

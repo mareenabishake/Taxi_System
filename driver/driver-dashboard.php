@@ -3,18 +3,7 @@ session_start();
 include('vendor/inc/config.php');
 include('vendor/inc/checklogin.php');
 check_login();
-$uid = $_SESSION['u_id'];
-
-// Fetch driver's name or ID from the logged-in user
-$query = "SELECT u_fname, u_lname FROM tms_user WHERE u_id = ?";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param('i', $uid);
-$stmt->execute();
-$stmt->bind_result($driver_fname, $driver_lname);
-$stmt->fetch();
-$stmt->close();
-
-$driver_name = $driver_fname . ' ' . $driver_lname;
+$d_id = $_SESSION['d_id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +45,7 @@ $driver_name = $driver_fname . ' ' . $driver_lname;
                 <!-- Breadcrumbs-->
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="operator-dashboard.php">Dashboard</a>
+                        <a href="driver-dashboard.php">Dashboard</a>
                     </li>
                     <li class="breadcrumb-item active">Overview</li>
                 </ol>
@@ -64,28 +53,42 @@ $driver_name = $driver_fname . ' ' . $driver_lname;
                 <!-- Icon Cards-->
                 <div class="row">
                     <div class="col-xl-3 col-sm-6 mb-3">
-                        <div class="card text-white bg-dark o-hidden h-100">
+                        <div class="card text-white bg-primary o-hidden h-100">
                             <div class="card-body">
                                 <div class="card-body-icon">
-                                    <i class="fas fa-fw fa fa-address-book"></i>
+                                    <i class="fas fa-fw fa-user"></i>
+                                </div>
+                                <div class="mr-5">Driver Profile</div>
+                            </div>
+                            <a class="card-footer text-white clearfix small z-1" href="driver-profile.php">
+                                <span class="float-left">View Details</span>
+                                <span class="float-right">
+                                    <i class="fas fa-angle-right"></i>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 mb-3">
+                        <div class="card text-white bg-warning o-hidden h-100">
+                            <div class="card-body">
+                                <div class="card-body-icon">
+                                    <i class="fas fa-fw fa-taxi"></i>
                                 </div>
                                 <?php
-                  //code for summing up number of booking 
-                  $result = "
-                  SELECT COUNT(*)
-                  FROM tms_user u
-                  INNER JOIN tms_vehicle v ON u.u_car_regno = v.v_reg_no
-                  WHERE v.v_driver = ? AND (u.u_car_book_status = 'Approved' OR u.u_car_book_status = 'Pending')
-                  ";
-                  $stmt = $mysqli->prepare($result);
-                  $stmt->bind_param('s', $driver_name);
-                  $stmt->execute();
-                  $stmt->bind_result($book);
-                  $stmt->fetch();
-                  $stmt->close();
-                ?>
-                                
-                                <div class="mr-5"><span class="badge badge-danger"><?php echo $book;?></span> Bookings</div>
+                                    //code for summing up number of assigned trips
+                                    $result = "
+                                    SELECT COUNT(*)
+                                    FROM tms_bookings
+                                    WHERE d_id = ? AND (b_status = 'Approved' OR b_status = 'Ongoing')
+                                    ";
+                                    $stmt = $mysqli->prepare($result);
+                                    $stmt->bind_param('i', $d_id);
+                                    $stmt->execute();
+                                    $stmt->bind_result($assigned_trips);
+                                    $stmt->fetch();
+                                    $stmt->close();
+                                ?>
+                                <div class="mr-5"><span class="badge badge-danger"><?php echo $assigned_trips;?></span> Assigned Trips</div>
                             </div>
                             <a class="card-footer text-white clearfix small z-1" href="operator-view-booking.php">
                                 <span class="float-left">View Details</span>
@@ -101,52 +104,54 @@ $driver_name = $driver_fname . ' ' . $driver_lname;
                 <div class="card mb-3">
                     <div class="card-header">
                         <i class="fas fa-table"></i>
-                        Bookings
+                        Assigned Trips
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Customer Name</th>
-                                        <th>Customer Contact No</th>
+                                        <th>Booking Date</th>
                                         <th>Pickup Location</th>
                                         <th>Return Location</th>
-                                        <th>Booking date</th>
-                                        <th>Vehicle No</th>
-                                        <th>Amount</th>
+                                        <th>Distance (km)</th>
+                                        <th>Hire</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-
+                                
                                 <tbody>
                                     <?php
                                     // Fetch bookings related to the logged-in driver
-                                    $ret = "
-                                    SELECT u.*
-                                    FROM tms_user u
-                                    INNER JOIN tms_vehicle v ON u.u_car_regno = v.v_reg_no
-                                    WHERE v.v_driver = ? AND (u.u_car_book_status = 'Approved' OR u.u_car_book_status = 'Pending')
-                                    ";
+                                    $ret = "SELECT b.b_id, b.b_date, b.pickup_location, b.return_location, b.distance, b.hire, b.b_status
+                                            FROM tms_bookings b
+                                            WHERE b.d_id = ? AND (b.b_status = 'Approved' OR b.b_status = 'Pending')
+                                            ORDER BY b.b_date DESC";
                                     $stmt = $mysqli->prepare($ret);
-                                    $stmt->bind_param('s', $driver_name);
+                                    $stmt->bind_param('i', $d_id);
                                     $stmt->execute();
                                     $res = $stmt->get_result();
                                     $cnt = 1;
-                                    while($row = $res->fetch_object()) {
+                                    while ($row = $res->fetch_object()) {
                                     ?>
-                                    <tr>
-                                        <td><?php echo $cnt;?></td>
-                                        <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                        <td><?php echo $row->u_phone;?></td>
-                                        <td><?php echo $row->u_car_pickup;?></td>
-                                        <td><?php echo $row->u_car_drop;?></td>
-                                        <td><?php echo $row->u_car_bookdate;?></td>
-                                        <td><?php echo $row->u_car_regno;?></td>
-                                        <td><?php echo $row->u_car_hire;?></td>
-                                        <td><?php if($row->u_car_book_status == "Pending"){ echo '<span class = "badge badge-warning">'.$row->u_car_book_status.'</span>'; } else { echo '<span class = "badge badge-success">'.$row->u_car_book_status.'</span>';}?></td>
-                                    </tr>
+                                        <tr>
+                                            <td><?php echo $cnt;?></td>
+                                            <td><?php echo $row->b_date;?></td>
+                                            <td><?php echo $row->pickup_location;?></td>
+                                            <td><?php echo $row->return_location;?></td>
+                                            <td><?php echo $row->distance;?></td>
+                                            <td><?php echo $row->hire;?></td>
+                                            <td>
+                                                <?php 
+                                                if($row->b_status == "Pending"){ 
+                                                    echo '<span class="badge badge-warning">'.$row->b_status.'</span>'; 
+                                                } else { 
+                                                    echo '<span class="badge badge-success">'.$row->b_status.'</span>';
+                                                }
+                                                ?>
+                                            </td>
+                                        </tr>
                                     <?php $cnt++; } ?>
                                 </tbody>
                             </table>
