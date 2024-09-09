@@ -5,16 +5,24 @@
   check_login();
   $d_id = $_SESSION['d_id'];
 
-  // Fetch driver's name based on the logged-in driver ID
-  $driver_query = "SELECT d_fname, d_lname FROM tms_driver WHERE d_id = ?";
-  $stmt = $mysqli->prepare($driver_query);
-  $stmt->bind_param('i', $d_id);
-  $stmt->execute();
-  $stmt->bind_result($driver_fname, $driver_lname);
-  $stmt->fetch();
-  $stmt->close();
-  
-  $driver_name = $driver_fname . ' ' . $driver_lname;
+  // End Trip
+  if(isset($_GET['end_trip'])) {
+      $b_id = $_GET['end_trip'];
+      $b_status = 'Ended';
+      
+      $query = "UPDATE tms_bookings SET b_status=? WHERE b_id=? AND d_id=?";
+      $stmt = $mysqli->prepare($query);
+      $stmt->bind_param('sii', $b_status, $b_id, $d_id);
+      $stmt->execute();
+      
+      if($stmt) {
+          $_SESSION['success'] = "Trip Ended Successfully";
+          header("Location: driver-manage-booking.php");
+          exit();
+      } else {
+          $err = "Please Try Again Later";
+      }
+  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,12 +35,23 @@
     
     <div id="wrapper">
 
-        <!-- Sidebar -->
         <?php include('vendor/inc/sidebar.php');?>
 
         <div id="content-wrapper">
 
             <div class="container-fluid">
+                
+                <?php
+                if(isset($_SESSION['success'])) {
+                    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                            ' . $_SESSION['success'] . '
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>';
+                    unset($_SESSION['success']);
+                }
+                ?>
                 
                 <!-- Breadcrumbs-->
                 <ol class="breadcrumb">
@@ -54,12 +73,9 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Name</th>
-                                        <th>Phone</th>
                                         <th>Pickup Location</th>
                                         <th>Return Location</th>
                                         <th>Booking Date</th>
-                                        <th>Vehicle Reg No</th>
                                         <th>Amount</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -68,14 +84,7 @@
                                 
                                 <tbody>
                                     <?php
-                                    // Query to fetch bookings related to the logged-in driver
-                                    $ret = "
-                                    SELECT b.*, u.u_fname, u.u_lname, u.u_phone, v.v_reg_no
-                                    FROM tms_bookings b
-                                    INNER JOIN tms_user u ON b.u_id = u.u_id
-                                    INNER JOIN tms_vehicle v ON b.v_id = v.v_id
-                                    WHERE b.d_id = ? AND (b.b_status = 'Approved' OR b.b_status = 'Pending')
-                                    ";
+                                    $ret = "SELECT * FROM tms_bookings WHERE d_id = ? ORDER BY b_date DESC";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->bind_param('i', $d_id);
                                     $stmt->execute();
@@ -86,25 +95,37 @@
                                     
                                     <tr>
                                         <td><?php echo $cnt;?></td>
-                                        <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                        <td><?php echo $row->u_phone;?></td>
                                         <td><?php echo $row->pickup_location;?></td>
                                         <td><?php echo $row->return_location;?></td>
                                         <td><?php echo $row->b_date;?></td>
-                                        <td><?php echo $row->v_reg_no;?></td>
                                         <td><?php echo $row->hire;?></td>
                                         <td>
-                                            <?php if($row->b_status == "Pending"){ 
-                                                echo '<span class="badge badge-warning">'.$row->b_status.'</span>'; 
-                                            } elseif($row->b_status == "Approved") {
-                                                echo '<span class="badge badge-success">'.$row->b_status.'</span>';
-                                            }?>
+                                            <?php 
+                                            switch($row->b_status) {
+                                                case "Pending":
+                                                    echo '<span class="badge badge-warning">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Approved":
+                                                    echo '<span class="badge badge-success">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Ongoing":
+                                                    echo '<span class="badge badge-info">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Ended":
+                                                    echo '<span class="badge badge-secondary">'.$row->b_status.'</span>';
+                                                    break;
+                                                default:
+                                                    echo '<span class="badge badge-dark">'.$row->b_status.'</span>';
+                                            }
+                                            ?>
                                         </td>
                                         <td>
                                             <?php if($row->b_status == "Pending"){ ?>
-                                                <a href="driver-approve-booking.php?b_id=<?php echo $row->b_id;?>" class="badge badge-success"><i class="fa fa-check"></i> Approve</a>
-                                            <?php } elseif($row->b_status == "Approved") { ?>
-                                                <a href="driver-end-trip.php?b_id=<?php echo $row->b_id;?>" class="badge badge-info"><i class="fa fa-stop"></i> End Trip</a>
+                                                <a href="driver-approve-booking.php?b_id=<?php echo $row->b_id;?>" class="badge badge-success"><i class="fa fa-check"></i> Accept</a>
+                                            <?php } elseif($row->b_status == "Ongoing") { ?>
+                                                <a href="driver-manage-booking.php?end_trip=<?php echo $row->b_id;?>" class="badge badge-danger"><i class="fa fa-stop"></i> End Trip</a>
+                                            <?php } else { ?>
+                                                <span class="badge badge-secondary">No Action</span>
                                             <?php } ?>
                                         </td>
                                     </tr>
@@ -120,6 +141,7 @@
 
                 <!-- Sticky Footer -->
                 <?php include("vendor/inc/footer.php");?>
+
             </div>
             <!-- /.content-wrapper -->
 
@@ -132,23 +154,7 @@
         </a>
 
         <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-             <div class="modal-dialog" role="document">
-                 <div class="modal-content">
-                     <div class="modal-header">
-                         <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                             <span aria-hidden="true">×</span>
-                         </button>
-                     </div>
-                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                     <div class="modal-footer">
-                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                         <a class="btn btn-danger" href="driver-logout.php">Logout</a>
-                     </div>
-                 </div>
-             </div>
-         </div>
+        <?php include("vendor/inc/logout.php");?>
         
         <!-- Bootstrap core JavaScript-->
         <script src="vendor/jquery/jquery.min.js"></script>
