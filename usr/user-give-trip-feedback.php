@@ -7,10 +7,9 @@
   $b_id = $_GET['b_id']; // Get the booking ID from the URL
 
   // Fetch booking details
-  $ret = "SELECT b.*, v.v_category, v.v_reg_no, u.u_fname, u.u_lname 
+  $ret = "SELECT b.*, v.v_category, v.v_reg_no 
           FROM tms_bookings b
           JOIN tms_vehicle v ON b.v_id = v.v_id
-          JOIN tms_user u ON b.u_id = u.u_id
           WHERE b.b_id = ?";
   $stmt = $mysqli->prepare($ret);
   $stmt->bind_param('i', $b_id);
@@ -21,16 +20,11 @@
   //Add Trip Feedback
   if(isset($_POST['give_trip_feedback']))
     {
-            $tf_cname = $booking_details->u_fname . ' ' . $booking_details->u_lname;
-            $tf_vname = $booking_details->v_category;
-            $tf_date = date('Y-m-d');
-            $tf_from = $booking_details->pickup_location;
-            $tf_to = $booking_details->return_location;
             $tf_feedback_text = $_POST['tf_feedback_text'];
             
-            $query = "INSERT INTO tms_trip_feedback (b_id, tf_cname, tf_vname, tf_date, tf_from, tf_to, tf_feedback_text) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO tms_trip_feedback (b_id, tf_feedback_text) VALUES (?, ?)";
             $stmt = $mysqli->prepare($query);
-            $rc = $stmt->bind_param('issssss', $b_id, $tf_cname, $tf_vname, $tf_date, $tf_from, $tf_to, $tf_feedback_text);
+            $rc = $stmt->bind_param('is', $b_id, $tf_feedback_text);
             $stmt->execute();
                 if($stmt)
                 {
@@ -97,31 +91,25 @@
                     <div class="card-body">
                         <!--Add Trip Feedback Form-->
                         <form method="POST">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="tf_cname">Customer Name</label>
-                                        <input type="text" required readonly class="form-control" value="<?php echo $booking_details->u_fname . ' ' . $booking_details->u_lname;?>" id="tf_cname" name="tf_cname">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="tf_vname">Vehicle Type</label>
-                                        <input type="text" required readonly class="form-control" value="<?php echo $booking_details->v_category;?>" id="tf_vname" name="tf_vname">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="tf_date">Date</label>
-                                        <input type="text" required readonly class="form-control" value="<?php echo date('Y-m-d'); ?>" id="tf_date" name="tf_date">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="tf_from">Pickup Location</label>
-                                        <input type="text" required readonly class="form-control" value="<?php echo $booking_details->pickup_location;?>" id="tf_from" name="tf_from">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="tf_to">Drop-off Location</label>
-                                        <input type="text" required readonly class="form-control" value="<?php echo $booking_details->return_location;?>" id="tf_to" name="tf_to">
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label for="pickup_location">Pickup Location</label>
+                                <input type="text" required readonly class="form-control" value="<?php echo $booking_details->pickup_location;?>" id="pickup_location" name="pickup_location">
+                            </div>
+                            <div class="form-group">
+                                <label for="return_location">Drop-off Location</label>
+                                <input type="text" required readonly class="form-control" value="<?php echo $booking_details->return_location;?>" id="return_location" name="return_location">
+                            </div>
+                            <div class="form-group">
+                                <label for="b_date">Booking Date</label>
+                                <input type="text" required readonly class="form-control" value="<?php echo $booking_details->b_date;?>" id="b_date" name="b_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="v_category">Vehicle Type</label>
+                                <input type="text" required readonly class="form-control" value="<?php echo $booking_details->v_category;?>" id="v_category" name="v_category">
+                            </div>
+                            <div class="form-group">
+                                <label for="v_reg_no">Vehicle Registration</label>
+                                <input type="text" required readonly class="form-control" value="<?php echo $booking_details->v_reg_no;?>" id="v_reg_no" name="v_reg_no">
                             </div>
                             <div class="form-group">
                                 <label for="tf_feedback_text">Your Feedback</label>
