@@ -11,14 +11,14 @@
             $u_fname=$_POST['u_fname'];
             $u_lname = $_POST['u_lname'];
             $u_phone=$_POST['u_phone'];
-            $u_NIC=$_POST['u_NIC'];
+            $u_license_or_ID=$_POST['u_NIC'];
             $u_addr=$_POST['u_addr'];
             $u_email=$_POST['u_email'];
-            $u_pwd=$_POST['u_pwd'];
-            $u_category=$_POST['u_category'];
-            $query="insert into tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_category, u_email, u_pwd) values(?,?,?,?,?,?,?,?)";
+            $u_pwd = password_hash($_POST['u_pwd'], PASSWORD_DEFAULT);
+
+            $query="INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('ssssssss', $u_fname,  $u_lname, $u_phone, $u_NIC, $u_addr, $u_category, $u_email, $u_pwd);
+            $rc=$stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $u_pwd);
             $stmt->execute();
                 if($stmt)
                 {
@@ -95,7 +95,7 @@
                                  <input type="text" class="form-control" id="Contact" name="u_phone">
                              </div>
                              <div class="form-group">
-                                 <label for="NIC No">NIC No</label>
+                                 <label for="NIC No">License or ID</label>
                                  <input type="text" class="form-control" id="NIC No" name="u_NIC">
                              </div>
                              <div class="form-group">

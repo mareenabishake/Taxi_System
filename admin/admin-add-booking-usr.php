@@ -13,7 +13,7 @@ if (isset($_POST['book_vehicle'])) {
     $b_date = $_POST['b_date'];
     $pickup_location = $_POST['pickup_location'];
     $return_location = $_POST['return_location'];
-    $b_status = $_POST['b_status'];
+    $b_status = 'Pending'; // Set status to 'Pending' automatically
 
     // Fetch vehicle cost
     $cost_query = "SELECT v_cost FROM tms_vehicle WHERE v_id = ?";
@@ -198,13 +198,6 @@ function calculateDistance($origin, $destination, $apiKey) {
                             <div class="form-group">
                                 <label for="hire">Total Hire</label>
                                 <input type="number" step="0.01" class="form-control" id="hire" name="hire" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="Booking Status">Booking Status</label>
-                                <select class="form-control" name="b_status" id="b_status">
-                                    <option value="Approved">Approved</option>
-                                    <option value="Pending">Pending</option>
-                                </select>
                             </div>
                             <button type="submit" name="book_vehicle" class="btn btn-success">Confirm Booking</button>
                         </form>

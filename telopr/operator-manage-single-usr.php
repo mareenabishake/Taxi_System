@@ -4,7 +4,7 @@
   include('vendor/inc/checklogin.php');
   check_login();
   $aid=$_SESSION['u_id'];
-  //Add USer
+  //Update User
   if (isset($_POST['update_user'])) {
     $u_id = $_GET['u_id'];
     $u_fname = $_POST['u_fname'];
@@ -13,12 +13,10 @@
     $u_license_or_ID = $_POST['u_license_or_ID'];
     $u_addr = $_POST['u_addr'];
     $u_email = $_POST['u_email'];
-    $u_pwd = $_POST['u_pwd'];
-    $u_category = $_POST['u_category'];
 
-    $query = "UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_license_or_ID=?, u_addr=?, u_category=?, u_email=?, u_pwd=? WHERE u_id=?";
+    $query = "UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_license_or_ID=?, u_addr=?, u_email=? WHERE u_id=?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('ssssssssi', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_category, $u_email, $u_pwd, $u_id);
+    $stmt->bind_param('ssssssi', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $u_id);
     $stmt->execute();
 
     if ($stmt) {
@@ -108,26 +106,17 @@
                                 <input type="text" class="form-control" value="<?php echo $row->u_phone; ?>" id="Contact" name="u_phone">
                             </div>
                             <div class="form-group">
-                                <label for="NIC No">NIC No</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_license_or_ID; ?>" id="NIC No" name="u_license_or_ID">
+                                <label for="License or ID">License or ID</label>
+                                <input type="text" class="form-control" value="<?php echo $row->u_license_or_ID; ?>" id="License or ID" name="u_license_or_ID">
                             </div>
                             <div class="form-group">
                                 <label for="Address">Address</label>
                                 <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="Address" name="u_addr">
                             </div>
 
-                            <div class="form-group" style="display:none">
-                                <label for="Category">Category</label>
-                                <input type="text" class="form-control" id="Category" value="User" name="u_category">
-                            </div>
-
                             <div class="form-group">
                                 <label for="Email address">Email address</label>
                                 <input type="email" value="<?php echo $row->u_email; ?>" class="form-control" name="u_email">
-                            </div>
-                            <div class="form-group">
-                                <label for="Password">Password</label>
-                                <input type="password" class="form-control" value="<?php echo $row->u_pwd; ?>" name="u_pwd" id="Password">
                             </div>
 
                              <button type="submit" name="update_user" class="btn btn-success">Update User</button>

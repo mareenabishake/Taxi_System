@@ -3,7 +3,6 @@
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
   check_login();
-  $aid=$_SESSION['u_id'];
 ?>
 
  <!DOCTYPE html>
@@ -32,7 +31,7 @@
                      <li class="breadcrumb-item active">Add Booking</li>
                  </ol>
 
-                 <!-- DataTables Example -->
+                 <!-- Data table structure-->
                  <div class="card mb-3">
                      <div class="card-header">
                          <i class="fas fa-users"></i>
@@ -53,9 +52,9 @@
                                  </thead>
                                  <?php
 
-                    $ret="SELECT * FROM tms_user where u_category= 'User'"; //sql code to get to ten trains randomly
+                    $ret="SELECT * FROM tms_user"; 
                     $stmt= $mysqli->prepare($ret) ;
-                    $stmt->execute() ;//ok
+                    $stmt->execute() ;
                     $res=$stmt->get_result();
                     $cnt=1;
                     while($row=$res->fetch_object())
@@ -74,7 +73,6 @@
                                                  <i class="fa fa-clipboard"></i>
                                                  Book Vehicle
                                              </a>
-                                             <!-- <a href="admin-manage-user.php?del=<?php echo $row->u_id;?>" class="badge badge-danger">Delete</a> -->
                                          </td>
                                      </tr>
                                  </tbody>
@@ -85,22 +83,22 @@
                      </div>
                  </div>
              </div>
-             <!-- /.container-fluid -->
              
-             <!-- Sticky Footer -->
-             <?php include("vendor/inc/footer.php");?>
+             
+             
          </div>
-         <!-- /.content-wrapper -->
+         
 
      </div>
-     <!-- /#wrapper -->
+     <!--Footer -->
+     <?php include("vendor/inc/footer.php");?>
 
      <!-- Scroll to Top Button-->
      <a class="scroll-to-top rounded" href="#page-top">
          <i class="fas fa-angle-up"></i>
      </a>
 
-     <!-- Logout Modal-->
+     <!-- Logout code-->
      <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModal" aria-hidden="true">
          <div class="modal-dialog" role="document">
              <div class="modal-content">
@@ -119,14 +117,16 @@
          </div>
      </div>
 
-     <!-- Bootstrap core JavaScript-->
+     
+
+     <!-- Bootstrap-->
      <script src="vendor/jquery/jquery.min.js"></script>
      <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-     <!-- Core plugin JavaScript-->
+     <!-- Core plugin JavaScript code-->
      <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-     <!-- Page level plugin JavaScript-->
+     <!-- Page level plugin JavaScript code-->
      <script src="vendor/datatables/jquery.dataTables.js"></script>
      <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 
@@ -135,6 +135,8 @@
 
      <!-- Demo scripts for this page-->
      <script src="js/demo/datatables-demo.js"></script>
+
+     
 
  </body>
  </html>

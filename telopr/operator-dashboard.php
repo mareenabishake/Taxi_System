@@ -60,7 +60,7 @@
                                 </div>
                                 <?php
                   //code for summing up number of users 
-                  $result ="SELECT count(*) FROM tms_user where u_category = 'User'";
+                  $result ="SELECT count(*) FROM tms_user";
                   $stmt = $mysqli->prepare($result);
                   $stmt->execute();
                   $stmt->bind_result($user);
@@ -88,7 +88,7 @@
                                 </div>
                                 <?php
                   //code for summing up number of booking 
-                  $result ="SELECT count(*) FROM tms_user where u_car_book_status = 'Approved' || u_car_book_status = 'Pending' ";
+                  $result ="SELECT count(*) FROM tms_bookings WHERE b_status = 'Approved' OR b_status = 'Pending'";
                   $stmt = $mysqli->prepare($result);
                   $stmt->execute();
                   $stmt->bind_result($book);
@@ -122,9 +122,11 @@
                                         <th>#</th>
                                         <th>Name</th>
                                         <th>Phone</th>
-                                        <th>Vehicle Type</th>
-                                        <th>Reg No</th>
                                         <th>Booking date</th>
+                                        <th>Pickup Location</th>
+                                        <th>Return Location</th>
+                                        <th>Distance</th>
+                                        <th>Hire</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -132,9 +134,13 @@
                                 <tbody>
                                     <?php
 
-                  $ret="SELECT * FROM tms_user where u_car_book_status = 'Approved' || u_car_book_status = 'Pending' "; //get all bookings
-                  $stmt= $mysqli->prepare($ret) ;
-                  $stmt->execute() ;//ok
+                  // Update the bookings table query
+                  $ret="SELECT b.*, u.u_fname, u.u_lname, u.u_phone 
+                        FROM tms_bookings b 
+                        JOIN tms_user u ON b.u_id = u.u_id 
+                        WHERE b.b_status = 'Approved' OR b.b_status = 'Pending'";
+                  $stmt= $mysqli->prepare($ret);
+                  $stmt->execute();
                   $res=$stmt->get_result();
                   $cnt=1;
                   while($row=$res->fetch_object())
@@ -145,10 +151,18 @@
                                         <td><?php echo $cnt;?></td>
                                         <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
                                         <td><?php echo $row->u_phone;?></td>
-                                        <td><?php echo $row->u_car_type;?></td>
-                                        <td><?php echo $row->u_car_regno;?></td>
-                                        <td><?php echo $row->u_car_bookdate;?></td>
-                                        <td><?php if($row->u_car_book_status == "Pending"){ echo '<span class = "badge badge-warning">'.$row->u_car_book_status.'</span>'; } else { echo '<span class = "badge badge-success">'.$row->u_car_book_status.'</span>';}?></td>
+                                        <td><?php echo $row->b_date;?></td>
+                                        <td><?php echo $row->pickup_location;?></td>
+                                        <td><?php echo $row->return_location;?></td>
+                                        <td><?php echo $row->distance;?> km</td>
+                                        <td><?php echo $row->hire;?></td>
+                                        <td><?php 
+                                            if($row->b_status == "Pending"){ 
+                                                echo '<span class="badge badge-warning">'.$row->b_status.'</span>'; 
+                                            } else { 
+                                                echo '<span class="badge badge-success">'.$row->b_status.'</span>';
+                                            }
+                                        ?></td>
 
                                     </tr>
                                     <?php  $cnt = $cnt +1; }?>
