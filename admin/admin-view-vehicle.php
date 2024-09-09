@@ -45,15 +45,16 @@
                                          <th>#</th>
                                          <th>Name</th>
                                          <th>Registration Number</th>
-                                         <th>Driver</th>
                                          <th>Passengers</th>
                                          <th>Category</th>
+                                         <th>Driver</th>
+                                         <th>Cost</th>
                                          <th>Status</th>
                                      </tr>
                                  </thead>
                                  <?php
-
-                    $ret="SELECT * FROM tms_vehicle "; 
+                    $ret="SELECT v.*, d.d_fname, d.d_lname FROM tms_vehicle v 
+                          LEFT JOIN tms_driver d ON v.d_id = d.d_id"; 
                     $stmt= $mysqli->prepare($ret) ;
                     $stmt->execute() ;
                     $res=$stmt->get_result();
@@ -67,10 +68,11 @@
                                          <td><?php echo $cnt;?></td>
                                          <td><?php echo $row->v_name;?></td>
                                          <td><?php echo $row->v_reg_no;?></td>
-                                         <td><?php echo $row->v_driver;?></td>
                                          <td><?php echo $row->v_pass_no;?></td>
                                          <td><?php echo $row->v_category;?></td>
-                                         <td><?php if($row->v_status == "Available"){ echo '<span class = "badge badge-success">'.$row->v_status.'</span>'; } else { echo '<span class = "badge badge-danger">'.$row->v_status.'</span>';}?></td>
+                                         <td><?php echo $row->d_fname . ' ' . $row->d_lname;?></td>
+                                         <td><?php echo $row->v_cost;?></td>
+                                         <td><?php if($row->v_status == "Available"){ echo '<span class="badge badge-success">'.$row->v_status.'</span>'; } else { echo '<span class="badge badge-danger">'.$row->v_status.'</span>';}?></td>
                                      </tr>
                                  </tbody>
                                  <?php $cnt = $cnt+1; }?>

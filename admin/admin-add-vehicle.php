@@ -7,30 +7,27 @@ $aid=$_SESSION['a_id'];
 
 // Add Vehicle Code
 if(isset($_POST['add_veh'])) {
-
     $v_name = $_POST['v_name'];
     $v_reg_no = $_POST['v_reg_no'];
     $v_category = $_POST['v_category'];
     $v_pass_no = $_POST['v_pass_no'];
     $v_status = $_POST['v_status'];
-    $v_driver = $_POST['v_driver'];
-    $v_driver_contact = $_POST['v_driver_contact'];
+    $d_id = $_POST['d_id'];
     $v_cost = $_POST['v_cost'];
     $v_dpic = $_FILES["v_dpic"]["name"];
 
-    // Move uploaded file to the appropriate directory
+    // Move uploaded file
     move_uploaded_file($_FILES["v_dpic"]["tmp_name"], "../vendor/img/".$_FILES["v_dpic"]["name"]);
 
     // Prepare the SQL query
-    $query = "INSERT INTO tms_vehicle (v_name, v_pass_no, v_reg_no, v_driver, v_driver_contact, v_category, v_cost, v_dpic, v_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO tms_vehicle (v_name, v_reg_no, v_pass_no, v_category, v_cost, v_dpic, v_status, d_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
 
-    // Bind the parameters to the SQL query
-    $stmt->bind_param('sssssssss', $v_name, $v_pass_no, $v_reg_no, $v_driver, $v_driver_contact, $v_category, $v_cost, $v_dpic, $v_status);
-
+    // Bind the parameters
+    $stmt->bind_param('sssssssi', $v_name, $v_reg_no, $v_pass_no, $v_category, $v_cost, $v_dpic, $v_status, $d_id);
     
     if($stmt->execute()) {
-        $succ = "Vehicle Added";
+        $succ = "Vehicle Added Successfully";
     } else {
         $err = "Please Try Again Later";
     }
@@ -103,32 +100,25 @@ if(isset($_POST['add_veh'])) {
                             </div>
                             <div class="form-group">
                                 <label for="v_pass_no">Number Of Seats</label>
-                                <input type="text" required class="form-control" id="v_pass_no" name="v_pass_no">
+                                <input type="number" required class="form-control" id="v_pass_no" name="v_pass_no">
                             </div>
                             <div class="form-group">
-                                <label for="v_driver">Driver Name</label>
-                                <select class="form-control" name="v_driver" id="v_driver" required>
+                                <label for="d_id">Driver</label>
+                                <select class="form-control" name="d_id" id="d_id" required>
                                     <option value="" disabled selected>Select a Driver</option>
                                     <?php
-                                    $ret = "SELECT * FROM tms_user WHERE u_category = 'Driver'";
+                                    $ret = "SELECT * FROM tms_driver";
                                     $stmt = $mysqli->prepare($ret);
                                     $stmt->execute();
                                     $res = $stmt->get_result();
                                     while($row = $res->fetch_object()) {
                                     ?>
-                                    <option value="<?php echo $row->u_fname . ' ' . $row->u_lname;?>" 
-                                            data-contact="<?php echo $row->u_phone;?>">
-                                        <?php echo $row->u_fname;?> <?php echo $row->u_lname;?>
+                                    <option value="<?php echo $row->d_id;?>">
+                                        <?php echo $row->d_fname . ' ' . $row->d_lname;?>
                                     </option>
                                     <?php }?>
                                 </select>
                             </div>
-
-                            <div class="form-group">
-                                <label for="v_driver_contact">Driver Contact No</label>
-                                <input type="text" required class="form-control" id="v_driver_contact" name="v_driver_contact">
-                            </div>
-
                             <div class="form-group">
                                 <label for="v_category">Vehicle Category</label>
                                 <select class="form-control" name="v_category" id="v_category">
@@ -138,24 +128,21 @@ if(isset($_POST['add_veh'])) {
                                     <option>Van</option>
                                 </select>
                             </div>
-
                             <div class="form-group">
                                 <label for="v_cost">Vehicle Cost (Per 1 Km)</label>
-                                <input type="text" required class="form-control" id="v_cost" name="v_cost">
+                                <input type="number" required class="form-control" id="v_cost" name="v_cost">
                             </div>
-
                             <div class="form-group">
                                 <label for="v_status">Vehicle Status</label>
                                 <select class="form-control" name="v_status" id="v_status">
                                     <option>Available</option>
+                                    <option>Booked</option>
                                 </select>
                             </div>
-                            
                             <div class="form-group">
                                 <label for="v_dpic">Vehicle Picture</label>
-                                <input type="file" class="btn btn-success" id="v_dpic" name="v_dpic" required>
+                                <input type="file" class="form-control-file" id="v_dpic" name="v_dpic" required>
                             </div>
-
                             <button type="submit" name="add_veh" class="btn btn-success">Add Vehicle</button>
                         </form>
                         
@@ -219,13 +206,5 @@ if(isset($_POST['add_veh'])) {
         <!--INject Sweet alert js-->
         <script src="vendor/js/swal.js"></script>
 
-        <!-- Script for Auto-filling Driver Contact Number -->
-        <script>
-            document.getElementById('v_driver').addEventListener('change', function() {
-                var selectedDriver = this.options[this.selectedIndex];
-                var contactNumber = selectedDriver.getAttribute('data-contact');
-                document.getElementById('v_driver_contact').value = contactNumber;
-            });
-        </script>
 </body>
 </html>

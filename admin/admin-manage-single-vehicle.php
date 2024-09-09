@@ -1,4 +1,4 @@
- <?php
+<?php
   session_start();
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
@@ -14,13 +14,12 @@
             $v_category=$_POST['v_category'];
             $v_cost=$_POST['v_cost'];
             $v_status=$_POST['v_status'];
-            $v_driver=$_POST['v_driver'];
-            $v_driver_contact=$_POST['v_driver_contact'];
+            $d_id=$_POST['d_id'];
             $v_dpic=$_FILES["v_dpic"]["name"];
             move_uploaded_file($_FILES["v_dpic"]["tmp_name"],"../vendor/img/".$_FILES["v_dpic"]["name"]);
-            $query="update tms_vehicle set v_name=?, v_reg_no=?, v_pass_no=?, v_driver=?, v_driver_contact=?, v_category=?, v_cost=?, v_dpic=?, v_status=? where v_id = ?";
+            $query="update vehicle set v_name=?, v_reg_no=?, v_pass_no=?, v_category=?, v_cost=?, v_dpic=?, v_status=?, d_id=? where v_id = ?";
             $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('sssssssssi', $v_name, $v_reg_no, $v_pass_no, $v_driver, $v_driver_contact, $v_category, $v_cost, $v_dpic, $v_status, $v_id);
+            $rc=$stmt->bind_param('sssssssii', $v_name, $v_reg_no, $v_pass_no, $v_category, $v_cost, $v_dpic, $v_status, $d_id, $v_id);
             $stmt->execute();
                 if($stmt)
                 {
@@ -114,21 +113,24 @@
 
                              <div class="form-group">
                                  <label for="Driver">Driver</label>
-                                 <input type="text" value="<?php echo $row->v_driver;?>" class="form-control" id="Driver" name="v_driver">
-                             </div>
-                             <div class="form-group">
-                                 <label for="Driver Contact No">Driver Contact No</label>
-                                 <input type="text" value="<?php echo $row->v_driver_contact;?>" class="form-control" id="Driver Contact No" name="v_driver_contact">
+                                 <select class="form-control" name="d_id" id="Driver">
+                                     <?php
+                                     $drivers = $mysqli->query("SELECT * FROM tms_driver");
+                                     while($driver = $drivers->fetch_object()) {
+                                         $selected = ($driver->d_id == $row->d_id) ? 'selected' : '';
+                                         echo "<option value='{$driver->d_id}' {$selected}>{$driver->d_fname} {$driver->d_lname}</option>";
+                                     }
+                                     ?>
+                                 </select>
                              </div>
 
                              <div class="form-group">
                                  <label for="Vehicle Category">Vehicle Category</label>
                                  <select class="form-control" name="v_category" id="Vehicle Category">
-                                    <option>Bus</option>
-                                    <option>Sedan</option>
-                                    <option>SUV</option>
-                                    <option>Van</option>
-
+                                    <option <?php if($row->v_category == 'Bus') echo 'selected'; ?>>Bus</option>
+                                    <option <?php if($row->v_category == 'Sedan') echo 'selected'; ?>>Sedan</option>
+                                    <option <?php if($row->v_category == 'SUV') echo 'selected'; ?>>SUV</option>
+                                    <option <?php if($row->v_category == 'Van') echo 'selected'; ?>>Van</option>
                                  </select>
                              </div>
 
@@ -140,7 +142,8 @@
                              <div class="form-group">
                                  <label for="Vehicle Status">Vehicle Status</label>
                                  <select class="form-control" name="v_status" id="Vehicle Status">
-                                     <option>Available</option>
+                                     <option <?php if($row->v_status == 'Available') echo 'selected'; ?>>Available</option>
+                                     <option <?php if($row->v_status == 'Booked') echo 'selected'; ?>>Booked</option>
                                  </select>
                              </div>
                              

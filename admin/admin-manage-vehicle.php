@@ -88,34 +88,37 @@
                                          <th>Name</th>
                                          <th>Registration Number</th>
                                          <th>Driver</th>
+                                         <th>Category</th>
                                          <th>Status</th>
+                                         <th>Action</th>
                                      </tr>
                                  </thead>
-                                 <?php
-
-                    $ret="SELECT * FROM tms_vehicle "; 
-                    $stmt= $mysqli->prepare($ret) ;
-                    $stmt->execute() ;
-                    $res=$stmt->get_result();
-                    $cnt=1;
-                    while($row=$res->fetch_object())
-                {
-                ?>
-                                
                                  <tbody>
-                                     <tr>
-                                         <td><?php echo $cnt;?></td>
-                                         <td><?php echo $row->v_name;?></td>
-                                         <td><?php echo $row->v_reg_no;?></td>
-                                         <td><?php echo $row->v_driver;?></td>
-                                         <td>
-                                             <a href="admin-manage-single-vehicle.php?v_id=<?php echo $row->v_id;?>" class="badge badge-success">Update</a>
-                                             <a href="admin-manage-vehicle.php?del=<?php echo $row->v_id;?>" class="badge badge-danger">Delete</a>
-                                         </td>
-                                     </tr>
+                                     <?php
+                                    $ret="SELECT v.*, CONCAT(d.d_fname, ' ', d.d_lname) as driver_name 
+                                          FROM tms_vehicle v 
+                                          LEFT JOIN tms_driver d ON v.d_id = d.d_id";
+                                    $stmt= $mysqli->prepare($ret);
+                                    $stmt->execute();
+                                    $res=$stmt->get_result();
+                                    $cnt=1;
+                                    while($row=$res->fetch_object())
+                                    {
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $cnt;?></td>
+                                        <td><?php echo $row->v_name;?></td>
+                                        <td><?php echo $row->v_reg_no;?></td>
+                                        <td><?php echo $row->driver_name;?></td>
+                                        <td><?php echo $row->v_category;?></td>
+                                        <td><?php echo $row->v_status;?></td>
+                                        <td>
+                                            <a href="admin-manage-single-vehicle.php?v_id=<?php echo $row->v_id;?>" class="badge badge-success">Update</a>
+                                            <a href="admin-manage-vehicle.php?del=<?php echo $row->v_id;?>" class="badge badge-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <?php $cnt = $cnt+1; }?>
                                  </tbody>
-                                 <?php $cnt = $cnt+1; }?>
-
                              </table>
                          </div>
                      </div>
