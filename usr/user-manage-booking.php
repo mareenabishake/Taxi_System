@@ -3,7 +3,7 @@
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
   check_login();
-  $aid=$_SESSION['u_id'];
+  $aid = $_SESSION['u_id'];
 ?>
 
 <!DOCTYPE html>
@@ -30,9 +30,18 @@
                         <a href="user-dashboard.php">Dashboard</a>
                     </li>
                     <li class="breadcrumb-item">Booking</li>
-                    <li class="breadcrumb-item ">Manage My Booking</li>
+                    <li class="breadcrumb-item active">Manage My Booking</li>
                 </ol>
                 
+                <?php
+                if(isset($_GET['success'])) {
+                    echo '<div class="alert alert-success">' . $_GET['success'] . '</div>';
+                }
+                if(isset($_GET['error'])) {
+                    echo '<div class="alert alert-danger">' . $_GET['error'] . '</div>';
+                }
+                ?>
+
                 <!-- My Bookings-->
                 <div class="card mb-3">
                     <div class="card-header">
@@ -44,9 +53,7 @@
                             <table class="table table-bordered table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>Driver Name</th>
-                                        <th>Driver Contact No</th>
-                                        <th>Vehicle Type</th>
+                                        <th>Booking ID</th>
                                         <th>Vehicle Reg No</th>
                                         <th>Pickup Location</th>
                                         <th>Return Location</th>
@@ -59,40 +66,65 @@
 
                                 <tbody>
                                     <?php
-                    $aid=$_SESSION['u_id'];
-                    $ret="SELECT * from tms_user where u_id=? ";
-                    $stmt= $mysqli->prepare($ret) ;
-                    $stmt->bind_param('i',$aid);
-                    $stmt->execute() ;
-                    $res=$stmt->get_result();
-                        while($row=$res->fetch_object())
-                        {
+                    $aid = $_SESSION['u_id'];
+                    $ret = "SELECT b.*, v.v_reg_no 
+                            FROM tms_bookings b
+                            JOIN tms_vehicle v ON b.v_id = v.v_id
+                            WHERE b.u_id = ?";
+                    $stmt = $mysqli->prepare($ret);
+                    $stmt->bind_param('i', $aid);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    while($row = $res->fetch_object())
+                    {
                 ?>
-                                    
                                     <tr>
-                                        <td><?php echo $row->u_car_driver;?></td>
-                                        <td><?php echo $row->u_car_driver_contact;?></td>
-                                        <td><?php echo $row->u_car_type;?></td>
-                                        <td><?php echo $row->u_car_regno;?></td>
-                                        <td><?php echo $row->u_car_pickup;?></td>
-                                        <td><?php echo $row->u_car_drop;?></td>
-                                        <td><?php echo $row->u_car_hire;?></td>
-                                        <td><?php echo $row->u_car_bookdate;?></td>
-                                        <td><span class="badge badge-success"><?php echo $row->u_car_book_status;?></span></td>
+                                        <td><?php echo $row->b_id;?></td>
+                                        <td><?php echo $row->v_reg_no;?></td>
+                                        <td><?php echo $row->pickup_location;?></td>
+                                        <td><?php echo $row->return_location;?></td>
+                                        <td><?php echo $row->hire;?></td>
+                                        <td><?php echo $row->b_date;?></td>
                                         <td>
-                                            <?php if($row->u_car_book_status == "Hire Ended"){ ?>
-                                                <?php if($row->u_car_book_status == "Paid"){ ?>
-                                                    <span class="badge badge-success">Payment made</span>
-                                                <?php } else { ?>
-                                                    <a href="user-make-payment.php?u_id=<?php echo $row->u_id;?>&amount=<?php echo urlencode($row->u_car_hire); ?>" class="badge badge-primary"><i class="fa fa-credit-card"></i> Make Payment</a>
-                                                <?php } ?>
-                                                <a href="user-give-trip-feedback.php?u_id=<?php echo $row->u_id;?>" class="badge badge-info"><i class="fa fa-comment"></i> Give Feedback</a>
-                                            <?php } else { ?>
-                                                <a href="user-delete-booking.php?u_id=<?php echo $row->u_id;?>" class="badge badge-danger"><i class="fa fa-trash"></i> Cancel</a>
-                                            <?php } ?>
+                                            <?php 
+                                            switch($row->b_status) {
+                                                case "Pending":
+                                                    echo '<span class="badge badge-warning">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Ongoing":
+                                                    echo '<span class="badge badge-primary">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Ended":
+                                                    echo '<span class="badge badge-success">'.$row->b_status.'</span>';
+                                                    break;
+                                                case "Cancelled":
+                                                    echo '<span class="badge badge-danger">'.$row->b_status.'</span>';
+                                                    break;
+                                                default:
+                                                    echo '<span class="badge badge-secondary">'.$row->b_status.'</span>';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            switch($row->b_status) {
+                                                case "Pending":
+                                                case "Cancelled":
+                                                    echo 'No action available';
+                                                    break;
+                                                case "Ongoing":
+                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-sm btn-info">Give Feedback</a>';
+                                                    break;
+                                                case "Ended":
+                                                    echo '<a href="user-make-payment.php?b_id='.$row->b_id.'&amount='.urlencode($row->hire).'" class="btn btn-sm btn-success">Make Payment</a> ';
+                                                    echo '<a href="user-give-trip-feedback.php?b_id='.$row->b_id.'" class="btn btn-sm btn-info">Give Feedback</a>';
+                                                    break;
+                                                default:
+                                                    echo 'No action available';
+                                            }
+                                            ?>
                                         </td>
                                     </tr>
-
                                     <?php  }?>
                                 </tbody>
                             </table>
@@ -118,24 +150,8 @@
     </a>
     
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-danger" href="user-logout.php">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+    <?php include("vendor/inc/logout.php");?>
+
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -144,7 +160,6 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Page level plugin JavaScript-->
-    <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="vendor/datatables/jquery.dataTables.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 
@@ -153,7 +168,6 @@
 
     <!-- Demo scripts for this page-->
     <script src="vendor/js/demo/datatables-demo.js"></script>
-    <script src="vendor/js/demo/chart-area-demo.js"></script>
     
 </body>
 </html>

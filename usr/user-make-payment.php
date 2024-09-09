@@ -5,9 +5,9 @@ include('vendor/inc/checklogin.php');
 check_login();
 $aid = $_SESSION['u_id'];
 
-// Fetch user details
-if (isset($_GET['u_id']) && isset($_GET['amount'])) {
-    $u_id = $_GET['u_id'];
+// Fetch booking details
+if (isset($_GET['b_id']) && isset($_GET['amount'])) {
+    $b_id = $_GET['b_id'];
     $amount = urldecode($_GET['amount']);
 } else {
     $error_message = "Missing required parameters.";
@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['make_payment'])) {
         // Process payment (implement your payment gateway logic here)
         // Update booking status in the database to indicate payment
-        $update_query = "UPDATE tms_user SET u_car_book_status = 'Paid' WHERE u_id = ?";
+        $update_query = "UPDATE tms_bookings SET b_status = 'Paid' WHERE b_id = ?";
         $stmt = $mysqli->prepare($update_query);
-        $stmt->bind_param('i', $u_id);
+        $stmt->bind_param('i', $b_id);
         $stmt->execute();
         
         if ($stmt->affected_rows > 0) {
@@ -29,11 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['error_msg'] = "Payment failed. Please try again.";
         }
         
-        // Redirect to the dashboard
-        header("Location: user-dashboard.php");
-        exit();
-    } elseif (isset($_POST['cancel_payment'])) {
-        // Redirect to the manage bookings page if payment is cancelled
+        // Redirect to the manage bookings page
         header("Location: user-manage-booking.php");
         exit();
     }
@@ -58,20 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="row justify-content-center">
                         <div class="col-md-6">
                             <form method="post" action="">
-                                <?php
-                                $aid = $_SESSION['u_id'];
-                                $ret = "SELECT * FROM tms_user WHERE u_id=?";
-                                $stmt = $mysqli->prepare($ret);
-                                $stmt->bind_param('i', $aid);
-                                $stmt->execute();
-                                $res = $stmt->get_result();
-                                while ($row = $res->fetch_object()) {
-                                ?>
-                                <div class="form-group">
-                                    <label for="client_name">Client Name</label>
-                                    <input type="text" class="form-control" id="client_name" name="client_name" value="<?php echo $row->u_fname . ' ' . $row->u_lname; ?>" readonly>
-                                </div>
-                                <?php } ?>
                                 <div class="form-group">
                                     <label for="amount">Amount</label>
                                     <input type="text" class="form-control" id="amount" name="amount" value="<?php echo $amount; ?>" readonly>
@@ -92,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 <div class="form-group mb-5">
                                     <button type="submit" name="make_payment" class="btn btn-primary mr-2">Make Payment</button>
-                                    <button type="button" onclick="window.location.href='user-manage-booking.php';" class="btn btn-secondary">Cancel Payment</button>
+                                    <a href="user-manage-booking.php" class="btn btn-secondary">Cancel Payment</a>
                                 </div>
                             </form>
                         </div>
@@ -103,7 +85,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <!-- Scroll to Top Button and Logout Modal -->
-    <!-- ... (include the same scripts as in the previous file) ... -->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    
+    <!-- Logout Modal-->
+    <?php include("vendor/inc/logout.php");?>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="vendor/js/sb-admin.min.js"></script>
 </body>
 </html>
