@@ -53,7 +53,7 @@
                                  </thead>
                                  <?php
 
-                    $ret="SELECT * FROM tms_user where u_category= 'User'"; 
+                    $ret="SELECT * FROM tms_user"; 
                     $stmt= $mysqli->prepare($ret) ;
                     $stmt->execute() ;
                     $res=$stmt->get_result();
@@ -74,7 +74,6 @@
                                                  <i class="fa fa-clipboard"></i>
                                                  Book Vehicle
                                              </a>
-                                             <?php echo $row->u_id;?>" class="badge badge-danger">Delete</a>
                                          </td>
                                      </tr>
                                  </tbody>

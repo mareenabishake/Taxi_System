@@ -67,7 +67,6 @@
 
              <a class="dropdown-item" href="admin-add-booking.php">Add</a>
              <a class="dropdown-item" href="admin-view-booking.php">View</a>
-             <a class="dropdown-item" href="admin-manage-booking.php">Manage</a>
          </div>
      </li>
  

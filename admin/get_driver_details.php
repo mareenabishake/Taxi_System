@@ -1,32 +1,34 @@
 <?php
 include('vendor/inc/config.php');
 
-if(isset($_POST['v_reg_no'])) {
-    $v_reg_no = $_POST['v_reg_no'];
+if(isset($_POST['v_id'])) {
+    $v_id = $_POST['v_id'];
     
-    // Prepare the SQL query to fetch driver name, contact, and vehicle cost
-    $query = "SELECT v_driver, v_driver_contact, v_cost FROM tms_vehicle WHERE v_reg_no = ?";
+    $query = "SELECT v.v_cost, v.d_id, CONCAT(d.d_fname, ' ', d.d_lname) AS driver_name 
+              FROM tms_vehicle v 
+              LEFT JOIN tms_driver d ON v.d_id = d.d_id 
+              WHERE v.v_id = ?";
+    
     $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('i', $v_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    if($stmt) {
-        $stmt->bind_param('s', $v_reg_no); 
-        $stmt->execute(); 
-        $result = $stmt->get_result(); 
-
-        if($result->num_rows > 0) {
-            $row = $result->fetch_assoc(); 
-            echo json_encode($row); 
-        } else {
-            echo json_encode(['error' => 'No data found for registration number: ' . $v_reg_no]);
-        }
-
-        $stmt->close(); // Close the statement
+    if($row = $result->fetch_assoc()) {
+        $response = array(
+            'driver_name' => $row['driver_name'],
+            'd_id' => $row['d_id'],
+            'v_cost' => $row['v_cost']
+        );
+        echo json_encode($response);
     } else {
-        echo json_encode(['error' => 'Error in query preparation']);
+        echo json_encode(array('error' => 'Vehicle or driver not found'));
     }
+    
+    $stmt->close();
 } else {
-    echo json_encode(['error' => 'No registration number provided']);
+    echo json_encode(array('error' => 'No vehicle ID provided'));
 }
 
-$mysqli->close(); 
+$mysqli->close();
 ?>

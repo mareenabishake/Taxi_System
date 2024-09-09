@@ -44,11 +44,13 @@
                                  <thead>
                                      <tr>
                                          <th>#</th>
-                                         <th>Name</th>
-                                         <th>Phone</th>
-                                         <th>Vehicle Type</th>
-                                         <th>Vehicle Reg No</th>
-                                         <th>Booking date</th>
+                                         <th>CustomerName</th>
+                                         <th>Customer Contact</th>
+                                         <th>Vehicle</th>
+                                         <th>Driver</th>
+                                         <th>Booking Date</th>
+                                         <th>Pickup</th>
+                                         <th>Dropoff</th>
                                          <th>Status</th>
                                      </tr>
                                  </thead>
@@ -56,9 +58,14 @@
                                  <tbody>
                                      <?php
 
-                  $ret="SELECT * FROM tms_user where u_car_book_status = 'Approved' || u_car_book_status = 'Pending' "; 
-                  $stmt= $mysqli->prepare($ret) ;
-                  $stmt->execute() ;
+                  $ret="SELECT b.*, u.u_fname, u.u_lname, u.u_phone, v.v_name, v.v_reg_no, d.d_fname, d.d_lname 
+                                          FROM tms_bookings b 
+                                          JOIN tms_user u ON b.u_id = u.u_id 
+                                          JOIN tms_vehicle v ON b.v_id = v.v_id 
+                                          JOIN tms_driver d ON b.d_id = d.d_id 
+                                          WHERE b.b_status = 'Approved' OR b.b_status = 'Pending'"; 
+                  $stmt= $mysqli->prepare($ret);
+                  $stmt->execute();
                   $res=$stmt->get_result();
                   $cnt=1;
                   while($row=$res->fetch_object())
@@ -69,10 +76,20 @@
                                          <td><?php echo $cnt;?></td>
                                          <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
                                          <td><?php echo $row->u_phone;?></td>
-                                         <td><?php echo $row->u_car_type;?></td>
-                                         <td><?php echo $row->u_car_regno;?></td>
-                                         <td><?php echo $row->u_car_bookdate;?></td>
-                                         <td><?php if($row->u_car_book_status == "Pending"){ echo '<span class = "badge badge-warning">'.$row->u_car_book_status.'</span>'; } else { echo '<span class = "badge badge-success">'.$row->u_car_book_status.'</span>';}?></td>
+                                         <td><?php echo $row->v_name;?> (<?php echo $row->v_reg_no;?>)</td>
+                                         <td><?php echo $row->d_fname;?> <?php echo $row->d_lname;?></td>
+                                         <td><?php echo $row->b_date;?></td>
+                                         <td><?php echo $row->pickup_location;?></td>
+                                         <td><?php echo $row->return_location;?></td>
+                                         <td>
+                                             <?php 
+                                             if($row->b_status == "Pending"){ 
+                                                 echo '<span class="badge badge-warning">'.$row->b_status.'</span>'; 
+                                             } else { 
+                                                 echo '<span class="badge badge-success">'.$row->b_status.'</span>';
+                                             }
+                                             ?>
+                                         </td>
                                      </tr>
                                      <?php  $cnt = $cnt +1; }?>
 
@@ -96,33 +113,34 @@
              <i class="fas fa-angle-up"></i>
          </a>
          
-         <!-- Logout code-->
+         <!-- Logout Modal-->
          <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModal" aria-hidden="true">
-             <div class="modal-dialog" role="document">
-                 <div class="modal-content">
-                     <div class="modal-header">
-                         <h5 class="modal-title" id="logoutModal">Ready to Leave?</h5>
-                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                             <span aria-hidden="true">×</span>
-                         </button>
-                     </div>
-                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                     <div class="modal-footer">
-                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                         <a class="btn btn-danger" href="admin-logout.php">Logout</a>
-                     </div>
-                 </div>
-             </div>
-         </div>
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="logoutModal">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger" href="admin-logout.php">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-         <!-- Bootstrap-->
+
+         <!-- Bootstrap core JavaScript-->
          <script src="vendor/jquery/jquery.min.js"></script>
          <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-         
-         <!-- Core plugin JavaScript code-->
+
+         <!-- Core plugin JavaScript-->
          <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-         <!-- Page level plugin JavaScript code-->
+         <!-- Page level plugin JavaScript-->
          <script src="vendor/datatables/jquery.dataTables.js"></script>
          <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 
