@@ -50,25 +50,24 @@
                                  </thead>
                                  <?php
 
-                    $ret="SELECT * FROM tms_user where u_category = 'Operator'  ORDER BY RAND() LIMIT 1000  "; 
-                    $stmt= $mysqli->prepare($ret) ;
-                    $stmt->execute() ;
-                    $res=$stmt->get_result();
-                    $cnt=1;
-                    while($row=$res->fetch_object())
-                {
+                    $ret = "SELECT * FROM tms_operator ORDER BY RAND() LIMIT 1000";
+                    $stmt = $mysqli->prepare($ret);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    $cnt = 1;
+                    while ($row = $res->fetch_object()) {
                 ?>
                                  
                                  <tbody>
                                      <tr>
                                          <td><?php echo $cnt;?></td>
-                                         <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                         <td><?php echo $row->u_phone;?></td>
-                                         <td><?php echo $row->u_addr;?></td>
-                                         <td><?php echo $row->u_email;?></td>
+                                         <td><?php echo $row->o_fname;?> <?php echo $row->o_lname;?></td>
+                                         <td><?php echo $row->o_phone;?></td>
+                                         <td><?php echo $row->o_addr;?></td>
+                                         <td><?php echo $row->o_email;?></td>
                                      </tr>
                                  </tbody>
-                                 <?php $cnt = $cnt+1; }?>
+                                 <?php $cnt = $cnt + 1; }?>
 
                              </table>
                          </div>
