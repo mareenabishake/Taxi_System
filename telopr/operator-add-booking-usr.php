@@ -53,7 +53,7 @@ if (isset($_POST['book_vehicle'])) {
         $update_stmt->execute();
         $update_stmt->close();
 
-        $succ = "Booking Added and Vehicle Status Updated to Busy";
+        $succ = "Booking Added Successfully";
     } else {
         $err = "Please Try Again Later";
     }
@@ -278,6 +278,7 @@ function calculateDistance($origin, $destination, $apiKey) {
                             $('#driver_name').val(data.driver_name);
                             $('#d_id').val(data.d_id);
                             $('#v_cost').val(data.v_cost);
+                            console.log('Vehicle Cost:', data.v_cost); // Add this line
                             calculateHire();
                         } else {
                             alert(data.error);
@@ -290,6 +291,10 @@ function calculateDistance($origin, $destination, $apiKey) {
                 var pickup = $('#pickup_location').val();
                 var drop = $('#return_location').val();
                 var v_cost = parseFloat($('#v_cost').val());
+
+                console.log('Pickup:', pickup);
+                console.log('Drop:', drop);
+                console.log('Vehicle Cost:', v_cost);
 
                 if (pickup && drop && !isNaN(v_cost)) {
                     var service = new google.maps.DistanceMatrixService();
@@ -308,12 +313,20 @@ function calculateDistance($origin, $destination, $apiKey) {
                                     var results = response.rows[i].elements;
                                     for (var j = 0; j < results.length; j++) {
                                         var element = results[j];
-                                        var distance = element.distance.value / 1000; // Convert meters to kilometers
-                                        var hire = distance * v_cost;
-                                        $('#distance').val(distance.toFixed(2));
-                                        $('#hire').val(hire.toFixed(2));
+                                        if (element.status === 'OK') {
+                                            var distance = element.distance.value / 1000; // Convert meters to kilometers
+                                            var hire = distance * v_cost;
+                                            $('#distance').val(distance.toFixed(2));
+                                            $('#hire').val(hire.toFixed(2));
+                                            console.log('Distance:', distance);
+                                            console.log('Hire:', hire);
+                                        } else {
+                                            alert('Unable to calculate distance. Please check the addresses.');
+                                        }
                                     }
                                 }
+                            } else {
+                                alert('Error: ' + status);
                             }
                         });
                 }
@@ -321,6 +334,11 @@ function calculateDistance($origin, $destination, $apiKey) {
 
             // Call calculateHire when the pickup or drop point changes
             $('#pickup_location, #return_location').on('change', calculateHire);
+
+            // Also call calculateHire when v_cost is updated
+            $('#v_id').change(function() {
+                calculateHire();
+            });
         });
         </script>
 
