@@ -2,6 +2,45 @@
 session_start();
 include('vendor/inc/config.php'); // Include configuration file
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../vendor/autoload.php';
+
+function sendWelcomeEmail($userEmail, $userName, $userPassword) {
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'hndteamwattala@gmail.com';
+        $mail->Password   = 'brax ysds ffrx ojer'; // App Password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('hndteamwattala@gmail.com', 'City Taxi');
+        $mail->addAddress($userEmail, $userName);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Welcome to Our Service';
+        $mail->Body    = "Hello $userName,<br><br>
+                          Thank you for registering with our service. Your account has been successfully created.<br><br>
+                          Your login details:<br>
+                          Email: $userEmail<br>
+                          Password: $userPassword<br><br>";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        return false;
+    }
+}
+
+
 // Add User
 if (isset($_POST['add_user'])) {
     $u_fname = $_POST['u_fname'];
@@ -11,22 +50,25 @@ if (isset($_POST['add_user'])) {
     $u_addr = $_POST['u_addr'];
     $u_email = $_POST['u_email'];
     $u_pwd = $_POST['u_pwd'];
-    $u_category = $_POST['u_category'];
 
     // Hash the password using MD5
     $hashed_pwd = md5($u_pwd);
 
-    // Prepare the SQL query
-    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_category, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Prepare the SQL query (removed u_category)
+    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
-        // Bind the parameters to the SQL query
-        $stmt->bind_param('ssssssss', $u_fname, $u_lname, $u_phone, $u_NIC, $u_addr, $u_category, $u_email, $hashed_pwd);
+        // Bind the parameters to the SQL query (removed u_category)
+        $stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_NIC, $u_addr, $u_email, $hashed_pwd);
 
         // Execute the query
         if ($stmt->execute()) {
-            $succ = "Account Created. Proceed To Log In";
+            if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
+                $succ = "Account Created and Welcome Email Sent. Proceed To Log In";
+            } else {
+                $succ = "Account Created but Failed to Send Welcome Email. Proceed To Log In";
+            }
         } else {
             $err = "Error: Could not execute the query. Please try again.";
         }

@@ -3,6 +3,45 @@
 session_start();
 include('vendor/inc/config.php');
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../vendor/autoload.php';
+
+function sendWelcomeEmail($userEmail, $userName, $userPassword) {
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'hndteamwattala@gmail.com';
+        $mail->Password   = 'brax ysds ffrx ojer'; // App Password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('hndteamwattala@gmail.com', 'City Taxi');
+        $mail->addAddress($userEmail, $userName);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Welcome to Our Service';
+        $mail->Body    = "Hello $userName,<br><br>
+                          Thank you for registering with our service. Your account has been successfully created.<br><br>
+                          Your login details:<br>
+                          Email: $userEmail<br>
+                          Password: $userPassword<br><br>";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        return false;
+    }
+}
+
+
 // Add Driver
 if (isset($_POST['add_driver'])) {
     $d_fname = $_POST['d_fname'];
@@ -26,7 +65,11 @@ if (isset($_POST['add_driver'])) {
 
         // Execute the query
         if ($stmt->execute()) {
-            $succ = "Driver Account Created. Proceed To Log In";
+            if (sendWelcomeEmail($d_email, $d_fname . ' ' . $d_lname, $d_pwd)) {
+                $succ = "Driver Account Created and Welcome Email Sent. Proceed To Log In";
+            } else {
+                $succ = "Driver Account Created but Failed to Send Welcome Email. Proceed To Log In";
+            }
         } else {
             $err = "Error: Could not execute the query. " . $stmt->error;
         }

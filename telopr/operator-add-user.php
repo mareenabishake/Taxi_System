@@ -6,14 +6,14 @@
   $aid=$_SESSION['u_id'];
 
   // Include PHPMailer
-  require 'vendor/autoload.php';
+  require '../vendor/autoload.php';  // Changed this line
 
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\SMTP;
   use PHPMailer\PHPMailer\Exception;
 
   // Function to send confirmation email
-  function sendConfirmationEmail($userEmail, $userName, $userPassword) {
+  function sendWelcomeEmail($userEmail, $userName, $userPassword) {
       $mail = new PHPMailer(true);
       try {
           // Server settings
@@ -36,8 +36,7 @@
                             Thank you for registering with our service. Your account has been successfully created.<br><br>
                             Your login details:<br>
                             Email: $userEmail<br>
-                            Password: $userPassword<br><br>
-                            Please change your password after your first login.";
+                            Password: $userPassword<br><br>";
 
           $mail->send();
           return true;
@@ -66,7 +65,7 @@
             {
                 // Send confirmation email
                 $plainTextPassword = $_POST['u_pwd']; // Get the plain text password
-                $emailSent = sendConfirmationEmail($u_email, $u_fname, $plainTextPassword);
+                $emailSent = sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $plainTextPassword);
                 if($emailSent) {
                     $succ = "User Added and Confirmation Email Sent";
                 } else {
