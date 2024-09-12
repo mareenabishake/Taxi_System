@@ -14,18 +14,18 @@ if (isset($_POST['update_operator'])) {
     $o_nic = $_POST['o_nic'];
     $o_addr = $_POST['o_addr'];
     $o_email = $_POST['o_email'];
-    $o_pwd = $_POST['o_pwd'];
+    // Removed: $o_pwd = $_POST['o_pwd'];
 
-    // Hash the password using MD5
-    $hashed_pwd = md5($o_pwd);
+    // Removed: Hash the password using MD5
+    // Removed: $hashed_pwd = md5($o_pwd);
 
     // Prepare the SQL query
-    $query = "UPDATE tms_operator SET o_fname=?, o_lname=?, o_phone=?, o_nic=?, o_addr=?, o_email=?, o_pwd=? WHERE o_id=?";
+    $query = "UPDATE tms_operator SET o_fname=?, o_lname=?, o_phone=?, o_nic=?, o_addr=?, o_email=? WHERE o_id=?";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
         // Bind the parameters to the SQL query
-        $stmt->bind_param('sssssssi', $o_fname, $o_lname, $o_phone, $o_nic, $o_addr, $o_email, $hashed_pwd, $o_id);
+        $stmt->bind_param('ssssssi', $o_fname, $o_lname, $o_phone, $o_nic, $o_addr, $o_email, $o_id);
 
         if ($stmt->execute()) {
             $succ = "Telephone Operator Updated";
@@ -116,10 +116,6 @@ if (isset($_POST['update_operator'])) {
                                 <div class="form-group">
                                     <label for="o_email">Email Address</label>
                                     <input type="email" value="<?php echo $row->o_email; ?>" class="form-control" id="o_email" name="o_email">
-                                </div>
-                                <div class="form-group">
-                                    <label for="o_pwd">Password</label>
-                                    <input type="password" class="form-control" id="o_pwd" name="o_pwd">
                                 </div>
 
                                 <button type="submit" name="update_operator" class="btn btn-success">Update Telephone Operator</button>
