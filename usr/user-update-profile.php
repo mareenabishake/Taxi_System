@@ -14,10 +14,10 @@
             $u_addr=$_POST['u_addr'];
             $u_email=$_POST['u_email'];
            // $u_pwd=$_POST['u_pwd'];
-            $u_category=$_POST['u_category'];
-            $query="update tms_user set u_fname=?, u_lname=?, u_phone=?, u_addr=?, u_category=?, u_email=? where u_id=?";
+            // Remove u_category
+            $query="UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_addr=?, u_email=? WHERE u_id=?";
             $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('ssssssi', $u_fname,  $u_lname, $u_phone, $u_addr, $u_category, $u_email, $u_id);
+            $rc=$stmt->bind_param('sssssi', $u_fname,  $u_lname, $u_phone, $u_addr, $u_email, $u_id);
             $stmt->execute();
                 if($stmt)
                 {
@@ -115,11 +115,6 @@
                              <div class="form-group">
                                  <label for="exampleInputEmail1">Address</label>
                                  <input type="text" class="form-control" value="<?php echo $row->u_addr;?>" id="exampleInputEmail1" name="u_addr">
-                             </div>
-
-                             <div class="form-group" style="display:none">
-                                 <label for="exampleInputEmail1">Category</label>
-                                 <input type="text" class="form-control" id="exampleInputEmail1" value="User" name="u_category">
                              </div>
 
                              <div class="form-group">
