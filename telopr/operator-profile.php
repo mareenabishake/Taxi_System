@@ -5,47 +5,13 @@ include('vendor/inc/checklogin.php');
 check_login();
 $aid = $_SESSION['u_id'];
 
-// Update User Password
-if (isset($_POST['update_password'])) {
-    $u_id = $_SESSION['u_id'];
-    $old_pwd = $_POST['old_pwd'];
-    $new_pwd = $_POST['u_pwd'];
-    $confirm_pwd = $_POST['confirm_pwd'];
-
-    // Fetch the current password from the database
-    $stmt = $mysqli->prepare("SELECT u_pwd FROM tms_user WHERE u_id=?");
-    $stmt->bind_param('i', $u_id);
-    $stmt->execute();
-    $stmt->bind_result($db_pwd);
-    $stmt->fetch();
-    $stmt->close();
-
-    // Check if the old password matches the one in the database
-    if (md5($old_pwd) == $db_pwd) {
-        // Check if the new password and confirm password match
-        if ($new_pwd == $confirm_pwd) {
-            // Hash the new password with MD5
-            $hashed_pwd = md5($new_pwd);
-
-            // Update the password in the database
-            $query = "UPDATE tms_user SET u_pwd=? WHERE u_id=?";
-            $stmt = $mysqli->prepare($query);
-            $stmt->bind_param('si', $hashed_pwd, $u_id);
-            $stmt->execute();
-
-            if ($stmt) {
-                $succ = "Password Updated Successfully";
-            } else {
-                $err = "Error: Could not update password. Please try again later.";
-            }
-            $stmt->close();
-        } else {
-            $err = "New Password and Confirm Password do not match.";
-        }
-    } else {
-        $err = "Old Password is incorrect.";
-    }
-}
+// Fetch operator details
+$stmt = $mysqli->prepare("SELECT * FROM tms_operator WHERE o_id = ?");
+$stmt->bind_param('i', $aid);
+$stmt->execute();
+$result = $stmt->get_result();
+$operator = $result->fetch_assoc();
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -66,59 +32,51 @@ if (isset($_POST['update_password'])) {
         <div id="content-wrapper">
             
             <div class="container-fluid">
-                <?php if (isset($succ)) { ?>
-                <!--This code for injecting an alert-->
-                <script>
-                setTimeout(function() {
-                        swal("Success!", "<?php echo $succ; ?>", "success");
-                    },
-                    100);
-                </script>
-                <?php } ?>
-                <?php if (isset($err)) { ?>
-                <!--This code for injecting an alert-->
-                <script>
-                setTimeout(function() {
-                        swal("Failed!", "<?php echo $err; ?>", "error");
-                    },
-                    100);
-                </script>
-                <?php } ?>
-                
                 <!-- Breadcrumbs-->
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="user-dashboard.php">Dashboard</a>
                     </li>
-                    <li class="breadcrumb-item">Profile</li>
-                    <li class="breadcrumb-item active">Change Password</li>
+                    <li class="breadcrumb-item active">Profile</li>
                 </ol>
                 <hr>
                 <div class="card">
                     <div class="card-header">
-                        Change Password
+                        Operator Profile
                     </div>
                     <div class="card-body">
-
-                        <form method="POST">
-                            <div class="form-group">
-                                <label for="old_pwd">Old Password</label>
-                                <input type="password" class="form-control" id="old_pwd" name="old_pwd" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="new_pwd">New Password</label>
-                                <input type="password" class="form-control" id="new_pwd" name="u_pwd" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirm_pwd">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirm_pwd" name="confirm_pwd" required>
-                            </div>
-
-                            <button type="submit" name="update_password" class="btn btn-outline-danger">Change Password</button>
-                        </form>
-                        <!-- End Form-->
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <th>Operator ID</th>
+                                    <td><?php echo $operator['o_id']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>First Name</th>
+                                    <td><?php echo $operator['o_fname']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Last Name</th>
+                                    <td><?php echo $operator['o_lname']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td><?php echo $operator['o_phone']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>NIC</th>
+                                    <td><?php echo $operator['o_nic']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td><?php echo $operator['o_addr']; ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td><?php echo $operator['o_email']; ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -139,23 +97,7 @@ if (isset($_POST['update_password'])) {
         </a>
         
         <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModal" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="logoutModal">Ready to Leave?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-danger" href="operator-logout.php">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php include("vendor/inc/logout.php"); ?>
         
         <!-- Bootstrap core JavaScript-->
         <script src="vendor/jquery/jquery.min.js"></script>
@@ -164,19 +106,8 @@ if (isset($_POST['update_password'])) {
         <!-- Core plugin JavaScript-->
         <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-        <!-- Page level plugin JavaScript-->
-        <script src="vendor/chart.js/Chart.min.js"></script>
-        <script src="vendor/datatables/jquery.dataTables.js"></script>
-        <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-
         <!-- Custom scripts for all pages-->
-        <script src="vendor/js/sb-admin.min.js"></script>
+        <script src="js/sb-admin.min.js"></script>
 
-        <!-- Demo scripts for this page-->
-        <script src="vendor/js/demo/datatables-demo.js"></script>
-        <script src="vendor/js/demo/chart-area-demo.js"></script>
-        <!--Inject Sweet alert js-->
-        <script src="vendor/js/swal.js"></script>
-
-</body>
+    </body>
 </html>
