@@ -17,7 +17,7 @@
             $d_id=$_POST['d_id'];
             $v_dpic=$_FILES["v_dpic"]["name"];
             move_uploaded_file($_FILES["v_dpic"]["tmp_name"],"../vendor/img/".$_FILES["v_dpic"]["name"]);
-            $query="update vehicle set v_name=?, v_reg_no=?, v_pass_no=?, v_category=?, v_cost=?, v_dpic=?, v_status=?, d_id=? where v_id = ?";
+            $query="update tms_vehicle set v_name=?, v_reg_no=?, v_pass_no=?, v_category=?, v_cost=?, v_dpic=?, v_status=?, d_id=? where v_id = ?";
             $stmt = $mysqli->prepare($query);
             $rc=$stmt->bind_param('sssssssii', $v_name, $v_reg_no, $v_pass_no, $v_category, $v_cost, $v_dpic, $v_status, $d_id, $v_id);
             $stmt->execute();
@@ -143,7 +143,7 @@
                                  <label for="Vehicle Status">Vehicle Status</label>
                                  <select class="form-control" name="v_status" id="Vehicle Status">
                                      <option <?php if($row->v_status == 'Available') echo 'selected'; ?>>Available</option>
-                                     <option <?php if($row->v_status == 'Booked') echo 'selected'; ?>>Booked</option>
+                                     <option <?php if($row->v_status == 'Booked') echo 'selected'; ?>>Busy</option>
                                  </select>
                              </div>
                              
