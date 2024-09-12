@@ -5,6 +5,15 @@
   check_login();
   $d_id = $_SESSION['d_id'];
 
+  // Update the path to your autoload.php
+  require_once __DIR__ . '/../vendor/twilio/sdk/src/Twilio/autoload.php';
+  use Twilio\Rest\Client;
+
+  // Twilio credentials
+  $sid = "";
+  $token = "";
+  $messagingServiceSid = "";
+
   // Accept Trip
   if(isset($_POST['accept_trip'])) {
       $b_id = $_GET['b_id'];
@@ -17,6 +26,51 @@
       
       if($stmt) {
           $_SESSION['success'] = "Trip Accepted Successfully";
+
+          // Fetch booking, user, driver, and vehicle details
+          $booking_query = "SELECT b.*, u.u_fname, u.u_lname, u.u_phone, 
+                            d.d_fname, d.d_lname, d.d_phone, d.d_license,
+                            v.v_reg_no
+                            FROM tms_bookings b 
+                            JOIN tms_user u ON b.u_id = u.u_id 
+                            JOIN tms_driver d ON b.d_id = d.d_id
+                            JOIN tms_vehicle v ON b.v_id = v.v_id
+                            WHERE b.b_id = ?";
+          $booking_stmt = $mysqli->prepare($booking_query);
+          $booking_stmt->bind_param('i', $b_id);
+          $booking_stmt->execute();
+          $booking_result = $booking_stmt->get_result();
+          $booking = $booking_result->fetch_assoc();
+
+          // Prepare the message
+          $message_body = "Your booking has been confirmed by the driver.\n\n";
+          $message_body .= "Booking Details:\n";
+          $message_body .= "Date: {$booking['b_date']}\n";
+          $message_body .= "Pickup: {$booking['pickup_location']}\n";
+          $message_body .= "Drop-off: {$booking['return_location']}\n";
+          $message_body .= "Distance: {$booking['distance']} km\n";
+          $message_body .= "Total Hire: {$booking['hire']}\n\n";
+          $message_body .= "Driver Details:\n";
+          $message_body .= "Name: {$booking['d_fname']} {$booking['d_lname']}\n";
+          $message_body .= "Phone: {$booking['d_phone']}\n";
+          $message_body .= "License: {$booking['d_license']}\n";
+          $message_body .= "Vehicle Reg No: {$booking['v_reg_no']}\n";
+
+          // Send SMS
+          try {
+              $twilio = new Client($sid, $token);
+              $message = $twilio->messages->create(
+                  $booking['u_phone'], // to
+                  array(
+                      "messagingServiceSid" => $messagingServiceSid,
+                      "body" => $message_body
+                  )
+              );
+              $_SESSION['success'] .= " and SMS confirmation sent to the customer.";
+          } catch (Exception $e) {
+              $_SESSION['error'] = "Trip accepted but failed to send SMS: " . $e->getMessage();
+          }
+
           header("Location: driver-dashboard.php");
           exit();
       } else {
