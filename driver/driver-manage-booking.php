@@ -10,12 +10,20 @@
       $b_id = $_GET['end_trip'];
       $b_status = 'Ended';
       
+      // Update booking status
       $query = "UPDATE tms_bookings SET b_status=? WHERE b_id=? AND d_id=?";
       $stmt = $mysqli->prepare($query);
       $stmt->bind_param('sii', $b_status, $b_id, $d_id);
       $stmt->execute();
       
-      if($stmt) {
+      // Update vehicle status
+      $v_status = 'Available';
+      $query_vehicle = "UPDATE tms_vehicle SET v_status=? WHERE v_id=(SELECT v_id FROM tms_bookings WHERE b_id=? AND d_id=?)";
+      $stmt_vehicle = $mysqli->prepare($query_vehicle);
+      $stmt_vehicle->bind_param('sii', $v_status, $b_id, $d_id);
+      $stmt_vehicle->execute();
+      
+      if($stmt && $stmt_vehicle) {
           $_SESSION['success'] = "Trip Ended Successfully";
           header("Location: driver-manage-booking.php");
           exit();

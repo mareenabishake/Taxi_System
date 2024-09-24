@@ -72,7 +72,7 @@
                                         <td><?php echo $row->v_pass_no;?> Passengers</td>
                                         <td>Rs.<?php echo $row->v_cost;?></td>
                                         <td>
-                                            <a href="user-confirm-booking.php?v_id=<?php echo $row->v_id;?>" class="btn btn-outline-success"><i class="fa fa-clipboard"></i> Book Vehicle</a>
+                                            <a href="user-confirm-booking.php?v_id=<?php echo $row->v_id;?>&d_id=<?php echo $row->d_id;?>" class="btn btn-outline-success"><i class="fa fa-clipboard"></i> Book Vehicle</a>
                                         </td>
                                     </tr>
                                     <?php $cnt = $cnt+1; } ?>

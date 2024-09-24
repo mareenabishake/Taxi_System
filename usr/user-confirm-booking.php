@@ -9,6 +9,7 @@ $aid = $_SESSION['u_id'];
 if (isset($_POST['book_vehicle'])) {
     $u_id = $_SESSION['u_id'];
     $v_id = $_GET['v_id'];
+    $d_id = $_GET['d_id']; // Retrieve d_id from URL
     $b_date = $_POST['b_date'];
     $pickup_location = $_POST['pickup_location'];
     $return_location = $_POST['return_location'];
@@ -18,7 +19,7 @@ if (isset($_POST['book_vehicle'])) {
 
     // Validate all required fields
     if (empty($u_id) || empty($v_id) || empty($b_date) || empty($pickup_location) || 
-        empty($return_location) || empty($distance) || empty($hire)) {
+        empty($return_location) || empty($distance) || empty($hire) || empty($d_id)) { // Add d_id to validation
         $err = "All fields are required. Please ensure you've calculated the hire before booking.";
     } else {
         // Convert distance and hire to float to ensure they're not null
@@ -26,9 +27,9 @@ if (isset($_POST['book_vehicle'])) {
         $hire = floatval($hire);
 
         // Insert the booking into tms_bookings
-        $query = "INSERT INTO tms_bookings (u_id, v_id, b_date, pickup_location, return_location, distance, hire, b_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO tms_bookings (u_id, v_id, b_date, pickup_location, return_location, distance, hire, b_status, d_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Add d_id to the query
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('iissssds', $u_id, $v_id, $b_date, $pickup_location, $return_location, $distance, $hire, $b_status);
+        $stmt->bind_param('iissssdsd', $u_id, $v_id, $b_date, $pickup_location, $return_location, $distance, $hire, $b_status, $d_id); // Bind d_id parameter
         
         if ($stmt->execute()) {
             $succ = "Booking Submitted Successfully";
@@ -95,15 +96,18 @@ function getDriverName($mysqli, $d_id) {
                     <div class="card-body">
                         <?php
                         $aid = $_GET['v_id'];
+                        $d_id = $_GET['d_id']; // Retrieve d_id from URL
                         $ret = "SELECT * FROM tms_vehicle WHERE v_id=?";
                         $stmt = $mysqli->prepare($ret);
                         $stmt->bind_param('i', $aid);
                         $stmt->execute();
                         $res = $stmt->get_result();
                         while ($row = $res->fetch_object()) {
-                            $driver_name = getDriverName($mysqli, $row->d_id);
+                            $driver_name = getDriverName($mysqli, $d_id);
                         ?>
                             <form method="POST">
+                                <!-- Add a hidden input to include d_id in the form -->
+                                <input type="hidden" name="d_id" value="<?php echo $d_id; ?>">
                                 <div class="form-group">
                                     <label>Vehicle Name</label>
                                     <input type="text" value="<?php echo $row->v_name; ?>" readonly class="form-control" name="v_name">
