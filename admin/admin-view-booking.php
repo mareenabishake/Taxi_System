@@ -44,7 +44,7 @@
                                  <thead>
                                      <tr>
                                          <th>#</th>
-                                         <th>CustomerName</th>
+                                         <th>Customer Name</th>
                                          <th>Customer Contact</th>
                                          <th>Vehicle</th>
                                          <th>Driver</th>

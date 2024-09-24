@@ -163,8 +163,8 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>User Name</th>
-                                        <th>User Phone</th>
+                                        <th>Client Name</th>
+                                        <th>Client Contact No</th>
                                         <th>Vehicle Reg No</th>
                                         <th>Booking Date</th>
                                         <th>Status</th>

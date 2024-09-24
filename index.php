@@ -52,7 +52,7 @@
 
     <section class="works">
         <div class="title">
-            <h3>HOW BOOK A VEHICLE?</h3>
+            <h3>HOW TO BOOK A VEHICLE?</h3>
             <p>"Where convenience meets reliability. Experience seamless vehicle bookings tailored to your needs with just a few clicks."</p>
         </div>
         <div class="container works-container">

@@ -85,7 +85,7 @@
                                  <thead>
                                      <tr>
                                          <th>#</th>
-                                         <th>Name</th>
+                                         <th>Vehicle Name</th>
                                          <th>Registration Number</th>
                                          <th>Driver</th>
                                          <th>Category</th>

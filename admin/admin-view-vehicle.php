@@ -43,7 +43,7 @@
                                  <thead>
                                      <tr>
                                          <th>#</th>
-                                         <th>Name</th>
+                                         <th>Vehicle Name</th>
                                          <th>Registration Number</th>
                                          <th>Passengers</th>
                                          <th>Category</th>
