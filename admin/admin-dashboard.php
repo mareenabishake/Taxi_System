@@ -132,7 +132,7 @@
                                     <i class="fas fa-fw fa fa-address-book"></i>
                                 </div>
                                 <?php
-                                  $result ="SELECT count(*) FROM tms_bookings WHERE b_status = 'Approved' OR b_status = 'Pending'";
+                                  $result ="SELECT count(*) FROM tms_bookings";
                                   $stmt = $mysqli->prepare($result);
                                   $stmt->execute();
                                   $stmt->bind_result($book);
