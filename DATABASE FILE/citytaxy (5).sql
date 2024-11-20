@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 12, 2024 at 08:15 AM
+-- Generation Time: Nov 19, 2024 at 04:22 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -65,8 +65,14 @@ CREATE TABLE `tms_bookings` (
 --
 
 INSERT INTO `tms_bookings` (`b_id`, `u_id`, `v_id`, `d_id`, `b_date`, `pickup_location`, `return_location`, `distance`, `hire`, `b_status`) VALUES
-(1, 72, 19, 1, '2024-09-09', 'Wattala, Sri Lanka', 'Colombo, Sri Lanka', 9, 1782, 'Approved'),
-(2, 76, 23, 7, '2024-09-10', 'Wattala, Sri Lanka', 'Kandana, Sri Lanka', 7, 1344, 'Paid');
+(2, 76, 23, 7, '2024-09-10', 'Wattala, Sri Lanka', 'Kandana, Sri Lanka', 7, 1344, 'Paid'),
+(7, 71, 20, 4, '2024-09-24', 'Wattala, Sri Lanka', 'Kottawa Town, Pannipitiya, Sri Lanka', 37, 5486, 'Paid'),
+(8, 66, 22, 6, '2024-09-24', 'Kottawa Town, Pannipitiya, Sri Lanka', 'Homagama Town, Homagama, Sri Lanka', 5, 736, 'Paid'),
+(9, 87, 23, 7, '2024-09-24', 'Nagoda Genaral Hospital, B304, Sri Lanka', 'Homagama Town, Homagama, Sri Lanka', 47, 9376, 'Paid'),
+(10, 81, 24, 10, '2024-09-24', 'Homagama Town, Homagama, Sri Lanka', 'Ragama Railway Station, National Basilika Ave, Ragama, Sri Lanka', 29, 4378, 'Paid'),
+(11, 88, 25, 11, '2024-09-25', 'Homagama Town, Homagama, Sri Lanka', 'Maharagama Bus Stand, Isipathanarama Road, Maharagama, Sri Lanka', 10, 1041, 'Paid'),
+(12, 88, 24, 10, '2024-09-25', 'Wattala, Sri Lanka', 'Kandana, Sri Lanka', 7, 1008, 'Paid'),
+(14, 72, 18, 9, '2024-11-19', 'Wattala, Sri Lanka', 'Homagama Town, Homagama, Sri Lanka', 37, 5527, 'Paid');
 
 -- --------------------------------------------------------
 
@@ -94,7 +100,10 @@ INSERT INTO `tms_driver` (`d_id`, `d_fname`, `d_lname`, `d_phone`, `d_license`, 
 (4, 'Nishantha', 'Ranathunga', 774125963, 'D5379393', 'Nagoda', 'nishantha@gmail.com', '202cb962ac59075b964b07152d234b70'),
 (5, 'Thimedha', 'Viraj', 773211294, 'D008465', 'Ja-Ela', 'viraj@gmail.com', '202cb962ac59075b964b07152d234b70'),
 (6, 'Garuka', 'Sanketh', 767898767, 'D888885342', 'Galle', 'garuka@gmail.com', '202cb962ac59075b964b07152d234b70'),
-(7, 'Isiwara', 'Dilhara', 773439217, 'D994632', 'Kaluthara', 'isiwara@gmail.com', '202cb962ac59075b964b07152d234b70');
+(7, 'Isiwara', 'Dilhara', 773439217, 'D994632', 'Kaluthara', 'isiwara@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(9, 'Nirmal', 'Perera', 2147483647, 'D7202673', 'Kadawatha', 'nirmal@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(10, 'Anura', 'Kumara', 2147483647, 'D3654859', 'Nagoda', 'anura@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(11, 'Malindu', 'Nisal', 2147483647, 'D293744', 'Horana', 'malindu@gmail.com', '202cb962ac59075b964b07152d234b70');
 
 -- --------------------------------------------------------
 
@@ -114,10 +123,10 @@ CREATE TABLE `tms_feedback` (
 --
 
 INSERT INTO `tms_feedback` (`f_id`, `f_uname`, `f_content`, `f_status`) VALUES
-(1, 'Elliot Gape', 'This is a demo feedback text. This is a demo feedback text. This is a demo feedback text.', 'Published'),
-(2, 'Mark L. Anderson', 'Sample Feedback Text for testing! Sample Feedback Text for testing! Sample Feedback Text for testing!', 'Published'),
-(3, 'Liam Moore ', 'test number 3', 'Published'),
-(4, 'Ranjan Ramanayaka ', 'Good driver.', 'Published');
+(4, 'Ranjan Ramanayaka ', 'Good driver.', 'Published'),
+(5, 'Binada Mandiw ', 'Very good, I recommend City taxi to others.', 'Published'),
+(6, 'Dineth Bandara ', 'They provide a good service to the customers. Recommended.', 'Published'),
+(7, 'Niranjee Amarasinghe ', 'I reccomend City taxi for the others.', 'Published');
 
 -- --------------------------------------------------------
 
@@ -142,7 +151,7 @@ CREATE TABLE `tms_operator` (
 
 INSERT INTO `tms_operator` (`o_id`, `o_fname`, `o_lname`, `o_phone`, `o_nic`, `o_addr`, `o_email`, `o_pwd`) VALUES
 (1, 'Menisha', 'Silva', 774538789, '200265457594V', 'Matara', 'menisha@gmail.com', '202cb962ac59075b964b07152d234b70'),
-(6, 'Janith', 'Kesara', 776567890, '52729839V', 'Colombo', 'janith@gmail.com', '202cb962ac59075b964b07152d234b70');
+(6, 'Janith', 'Keshaka', 776567890, '52729839V', 'Colombo', 'janith@gmail.com', '202cb962ac59075b964b07152d234b70');
 
 -- --------------------------------------------------------
 
@@ -163,7 +172,14 @@ CREATE TABLE `tms_trip_feedback` (
 INSERT INTO `tms_trip_feedback` (`tf_id`, `b_id`, `tf_feedback_text`) VALUES
 (1, 0, 'It was a good trip'),
 (2, 0, 'Good driver'),
-(3, 2, 'Excellent driver.');
+(3, 2, 'Excellent driver.'),
+(4, 4, 'Very good driver.'),
+(5, 7, 'Good driver.'),
+(6, 8, 'Good driver.'),
+(7, 3, 'Driving is very poor.'),
+(8, 7, 'Good driver, recommend.'),
+(9, 11, 'Good driver.'),
+(10, 13, 'Good Driver.');
 
 -- --------------------------------------------------------
 
@@ -200,7 +216,14 @@ INSERT INTO `tms_user` (`u_id`, `u_fname`, `u_lname`, `u_phone`, `u_license_or_I
 (72, 'Menaka', 'Nuwan', '0776545678', '', 'Wattala', 'menaka@gmail.com', '202cb962ac59075b964b07152d234b70'),
 (76, 'Shevon', 'Daniel', '0778989890', '', 'Colombo', 'shevon@gmail.com', '202cb962ac59075b964b07152d234b70'),
 (77, 'Tharun', 'Ranjith', '0777410237', '', 'Wattala', 'ranjiththarun57@gmail.com', '202cb962ac59075b964b07152d234b70'),
-(79, 'Nimal', 'Randika', '0774123698', '', 'Balangoda', 'nimal@gmail.com', '202cb962ac59075b964b07152d234b70');
+(79, 'Nimal', 'Randika', '0774123698', '', 'Balangoda', 'nimal@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(81, 'Binath', 'Hettiarachchi', '+94742625552', '', 'Wattala', 'hdbinath@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(82, 'Mareen', 'Abishake', '+94719077040', '', 'Wattala', 'mareen.abishake@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(84, 'Tilwin', 'Silva', '+94770691800', '', 'Colombo', 'tilwin@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(86, 'Sisira', 'Silva', '0776354097', '20017496V', 'Colombo', 'sisira@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(87, 'Chathura', 'Alwis', '0776354093', '', 'Wattala', 'chathura@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(88, 'Dineth', 'Bandara', '+94770691800', '', 'Homagama', 'dinethbandara03@gmail.com', '202cb962ac59075b964b07152d234b70'),
+(91, 'Niranjee', 'Amarasinghe', '+94773430370', '', 'Colombo', 'niranjeebandara04@gmail.com', '202cb962ac59075b964b07152d234b70');
 
 -- --------------------------------------------------------
 
@@ -225,12 +248,14 @@ CREATE TABLE `tms_vehicle` (
 --
 
 INSERT INTO `tms_vehicle` (`v_id`, `d_id`, `v_name`, `v_reg_no`, `v_pass_no`, `v_category`, `v_cost`, `v_dpic`, `v_status`) VALUES
-(18, 3, 'BMW 520D', 'KV - 8829', '5', 'Sedan', 150, 'bmw.jpg', 'Available'),
-(19, 1, 'BMW 320D', 'CBB - 5543', '5', 'Sedan', 200, 'bmw320d.jpg', 'Busy'),
+(18, 9, 'BMW 520D', 'KV - 8829', '5', 'Sedan', 150, 'bmw.jpg', 'Available'),
+(19, 1, 'BMW 320D', 'CBB - 5543', '5', 'Sedan', 200, 'bmw320d.jpg', 'Available'),
 (20, 4, 'BMW 740Ie', 'CBG - 2455', '5', 'Sedan', 150, 'bmw740le.jpg', 'Available'),
 (21, 5, 'Benz C-180', 'CAS - 6828', '5', 'Sedan', 145, 'benzc180.jpg', 'Available'),
 (22, 6, 'BMW 520D', 'KX - 5858', '5', 'Sedan', 150, '520d.jpg', 'Available'),
-(23, 7, 'Mustang', 'CBK - 1986', '5', 'Sedan', 200, 'mustang.jpg', 'Busy');
+(23, 7, 'Mustang', 'CBK - 1986', '5', 'Sedan', 200, 'mustang.jpg', 'Available'),
+(24, 10, 'Benz C-200', 'CBJ - 2604', '5', 'Sedan', 150, 'c200.jpg', 'Available'),
+(25, 11, 'Premio', 'CBD - 2040', '5', 'Sedan', 100, 'Premio.jpg', 'Available');
 
 --
 -- Indexes for dumped tables
@@ -292,43 +317,43 @@ ALTER TABLE `tms_vehicle`
 -- AUTO_INCREMENT for table `tms_bookings`
 --
 ALTER TABLE `tms_bookings`
-  MODIFY `b_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `b_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `tms_driver`
 --
 ALTER TABLE `tms_driver`
-  MODIFY `d_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `d_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `tms_feedback`
 --
 ALTER TABLE `tms_feedback`
-  MODIFY `f_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `f_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `tms_operator`
 --
 ALTER TABLE `tms_operator`
-  MODIFY `o_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `o_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tms_trip_feedback`
 --
 ALTER TABLE `tms_trip_feedback`
-  MODIFY `tf_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `tf_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `tms_user`
 --
 ALTER TABLE `tms_user`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `tms_vehicle`
 --
 ALTER TABLE `tms_vehicle`
-  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
