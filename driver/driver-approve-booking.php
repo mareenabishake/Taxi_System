@@ -10,9 +10,9 @@
   use Twilio\Rest\Client;
 
   // Twilio credentials
-  $sid = "";
-  $token = "";
-  $messagingServiceSid = "";
+  $sid = "AC43be29fe9b3536a42abf3b9293acb717";
+  $token = "9606b892cdd18e1b92366107ce794d2f";
+  $messagingServiceSid = "MG147a8246a1456e1f4ca5cf88c237acc0";
 
   // Accept Trip
   if(isset($_POST['accept_trip'])) {

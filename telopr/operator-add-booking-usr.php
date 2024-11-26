@@ -155,6 +155,10 @@ function calculateDistance($origin, $destination, $apiKey) {
                                 <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="Address" name="u_addr">
                             </div>
                             <div class="form-group">
+                                <label for="pickup_location">Pickup Point</label>
+                                <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
+                            </div>
+                            <div class="form-group">
                                 <label for="Vehicle Category">Vehicle Category</label>
                                 <select class="form-control" name="v_category" id="v_category" required>
                                     <option value="">Select Vehicle Category</option>
@@ -183,10 +187,6 @@ function calculateDistance($origin, $destination, $apiKey) {
                                 <input type="date" class="form-control" id="b_date" name="b_date" required>
                             </div>
                             <input type="hidden" id="v_cost" name="v_cost">
-                            <div class="form-group">
-                                <label for="pickup_location">Pickup Point</label>
-                                <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
-                            </div>
                             <div class="form-group">
                                 <label for="return_location">Drop Point</label>
                                 <input type="text" class="form-control" id="return_location" name="return_location" required>
@@ -252,18 +252,68 @@ function calculateDistance($origin, $destination, $apiKey) {
         <!-- JavaScript to handle dynamic dropdown population -->
         <script>
         $(document).ready(function() {
-            // Load vehicle registration numbers based on vehicle category
             $('#v_category').change(function() {
                 var v_category = $(this).val();
+                var pickup = $('#pickup_location').val();
+                
+                if (!pickup) {
+                    alert('Please enter pickup location first');
+                    return;
+                }
+                
                 $.ajax({
                     url: "get_vehicle_regno.php",
                     method: "POST",
-                    data: { v_category: v_category },
-                    success: function(data) {
-                        $('#v_id').html(data);
+                    data: { 
+                        v_category: v_category,
+                        pickup_location: pickup 
+                    },
+                    dataType: 'json',
+                    success: function(vehicles) {
+                        if (vehicles.length === 0) {
+                            $('#v_id').html('<option value="">No vehicles available</option>');
+                            return;
+                        }
+                        calculateDistancesAndPopulateDropdown(vehicles, pickup);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                        $('#v_id').html('<option value="">Error loading vehicles</option>');
                     }
                 });
             });
+
+            function calculateDistancesAndPopulateDropdown(vehicles, pickup) {
+                var service = new google.maps.DistanceMatrixService();
+                service.getDistanceMatrix({
+                    origins: [pickup],
+                    destinations: vehicles.map(v => v.v_location),
+                    travelMode: 'DRIVING',
+                    unitSystem: google.maps.UnitSystem.METRIC,
+                }, function(response, status) {
+                    if (status === 'OK') {
+                        var elements = response.rows[0].elements;
+                        
+                        vehicles.forEach((vehicle, index) => {
+                            if (elements[index].status === 'OK') {
+                                vehicle.distance = elements[index].distance.value / 1000;
+                            } else {
+                                vehicle.distance = Infinity;
+                            }
+                        });
+                        
+                        vehicles.sort((a, b) => a.distance - b.distance);
+                        
+                        var options = '<option value="">Select Vehicle Registration</option>';
+                        vehicles.forEach(vehicle => {
+                            var distanceText = vehicle.distance !== Infinity ? 
+                                ` (${vehicle.distance.toFixed(2)} km)` : ' (distance N/A)';
+                            options += `<option value="${vehicle.v_id}">${vehicle.v_reg_no}${distanceText}</option>`;
+                        });
+                        $('#v_id').html(options);
+                    }
+                });
+            }
 
             // Load driver details based on vehicle registration number
             $('#v_id').change(function() {

@@ -88,7 +88,7 @@
                                 </div>
                                 <?php
                   //code for summing up number of booking 
-                  $result ="SELECT count(*) FROM tms_bookings WHERE b_status = 'Approved' OR b_status = 'Pending'";
+                  $result ="SELECT count(*) FROM tms_bookings";
                   $stmt = $mysqli->prepare($result);
                   $stmt->execute();
                   $stmt->bind_result($book);
@@ -122,6 +122,7 @@
                                         <th>#</th>
                                         <th>Name</th>
                                         <th>Phone</th>
+                                        <th>Vehicle Reg No</th>
                                         <th>Booking date</th>
                                         <th>Pickup Location</th>
                                         <th>Return Location</th>
@@ -135,10 +136,10 @@
                                     <?php
 
                   // Update the bookings table query
-                  $ret="SELECT b.*, u.u_fname, u.u_lname, u.u_phone 
+                  $ret="SELECT b.*, u.u_fname, u.u_lname, u.u_phone, v.v_reg_no 
                         FROM tms_bookings b 
                         JOIN tms_user u ON b.u_id = u.u_id 
-                        WHERE b.b_status = 'Approved' OR b.b_status = 'Pending'";
+                        JOIN tms_vehicle v ON b.v_id = v.v_id";
                   $stmt= $mysqli->prepare($ret);
                   $stmt->execute();
                   $res=$stmt->get_result();
@@ -151,6 +152,7 @@
                                         <td><?php echo $cnt;?></td>
                                         <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
                                         <td><?php echo $row->u_phone;?></td>
+                                        <td><?php echo $row->v_reg_no;?></td>
                                         <td><?php echo $row->b_date;?></td>
                                         <td><?php echo $row->pickup_location;?></td>
                                         <td><?php echo $row->return_location;?></td>

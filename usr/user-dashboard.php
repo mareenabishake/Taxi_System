@@ -4,6 +4,33 @@
   include('vendor/inc/checklogin.php');
   check_login();
   $aid=$_SESSION['u_id'];
+
+  // Update user location
+  if (isset($_POST['update_location'])) {
+      $user_location = $_POST['user_location'];
+      $u_id = $_SESSION['u_id'];
+      
+      $update_query = "UPDATE tms_user SET u_location = ? WHERE u_id = ?";
+      $update_stmt = $mysqli->prepare($update_query);
+      $update_stmt->bind_param('si', $user_location, $u_id);
+      
+      if ($update_stmt->execute()) {
+          $succ = "Location Updated Successfully";
+          $_SESSION['show_booking_popup'] = true;
+      } else {
+          $err = "Failed to update location";
+      }
+      $update_stmt->close();
+  }
+
+  // Get current user location
+  $loc_query = "SELECT u_location FROM tms_user WHERE u_id = ?";
+  $loc_stmt = $mysqli->prepare($loc_query);
+  $loc_stmt->bind_param('i', $aid);
+  $loc_stmt->execute();
+  $loc_result = $loc_stmt->get_result();
+  $current_user = $loc_result->fetch_object();
+  $loc_stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,50 +132,20 @@
                     </div>
                 </div>
 
-                <!--Bookings-->
+                <!--Location Form-->
                 <div class="card mb-3">
                     <div class="card-header">
-                        <i class="fas fa-table"></i>
-                        Available Vehicles
+                        <i class="fas fa-map-marker-alt"></i>
+                        Set Your Location
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Vehicle Name</th>
-                                        <th>Reg. No.</th>
-                                        <th>Seats</th>
-                                        <th>Category</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                
-                                <tbody>
-                                <?php
-                                    $ret="SELECT * FROM tms_vehicle WHERE v_status = 'Available'";
-                                    $stmt= $mysqli->prepare($ret) ;
-                                    $stmt->execute() ;
-                                    $res=$stmt->get_result();
-                                    $cnt=1;
-                                    while($row=$res->fetch_object())
-                                    {
-                                ?>
-                                    <tr>
-                                        <td><?php echo $cnt;?></td>
-                                        <td><?php echo $row->v_name;?></td>
-                                        <td><?php echo $row->v_reg_no;?></td>
-                                        <td><?php echo $row->v_pass_no;?></td>
-                                        <td><?php echo $row->v_category;?></td>
-                                        <td>
-                                            <a href="usr-book-vehicle.php?v_id=<?php echo $row->v_id;?>" class="badge badge-success"><i class="fa fa-book"></i> Book</a>
-                                        </td>
-                                    </tr>
-                                <?php  $cnt = $cnt +1; }?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <form method="POST">
+                            <div class="form-group">
+                                <label>Your Current Location</label>
+                                <input type="text" class="form-control" id="user_location" name="user_location" required>
+                            </div>
+                            <button type="submit" name="update_location" class="btn btn-primary">Set Location</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -187,6 +184,47 @@
     <!-- Demo scripts for this page-->
     <script src="vendor/js/demo/datatables-demo.js"></script>
     <script src="vendor/js/demo/chart-area-demo.js"></script>
+
+    <!-- Google Maps Places API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk&libraries=places"></script>
+    <script>
+    <?php if (isset($_SESSION['show_booking_popup'])) { ?>
+        $(document).ready(function() {
+            $('#bookingModal').modal('show');
+            <?php unset($_SESSION['show_booking_popup']); ?>
+        });
+    <?php } ?>
+
+    // Initialize Google Places Autocomplete
+    function initAutocomplete() {
+        var locationInput = document.getElementById('user_location');
+        new google.maps.places.Autocomplete(locationInput);
+    }
+
+    // Call initAutocomplete when the page loads
+    google.maps.event.addDomListener(window, 'load', initAutocomplete);
+    </script>
+
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Location Updated Successfully!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Your location has been updated. Would you like to book a vehicle now?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="usr-book-vehicle.php" class="btn btn-primary">Book Vehicle</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

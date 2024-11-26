@@ -155,6 +155,10 @@ function calculateDistance($origin, $destination, $apiKey) {
                                 <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="Address" name="u_addr">
                             </div>
                             <div class="form-group">
+                                <label for="pickup_location">Pickup Point</label>
+                                <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
+                            </div>
+                            <div class="form-group">
                                 <label for="Vehicle Category">Vehicle Category</label>
                                 <select class="form-control" name="v_category" id="v_category" required>
                                     <option value="">Select Vehicle Category</option>
@@ -183,10 +187,6 @@ function calculateDistance($origin, $destination, $apiKey) {
                                 <input type="date" class="form-control" id="b_date" name="b_date" required>
                             </div>
                             <input type="hidden" id="v_cost" name="v_cost">
-                            <div class="form-group">
-                                <label for="pickup_location">Pickup Point</label>
-                                <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
-                            </div>
                             <div class="form-group">
                                 <label for="return_location">Drop Point</label>
                                 <input type="text" class="form-control" id="return_location" name="return_location" required>
@@ -252,22 +252,77 @@ function calculateDistance($origin, $destination, $apiKey) {
         <!-- JavaScript to handle dynamic dropdown population -->
         <script>
         $(document).ready(function() {
-            // Load vehicle registration numbers based on vehicle category
             $('#v_category').change(function() {
                 var v_category = $(this).val();
+                var pickup = $('#pickup_location').val();
+                
+                if (!pickup) {
+                    alert('Please enter pickup location first');
+                    return;
+                }
+                
                 $.ajax({
                     url: "get_vehicle_regno.php",
                     method: "POST",
-                    data: { v_category: v_category },
-                    success: function(data) {
-                        $('#v_id').html(data);
+                    data: { 
+                        v_category: v_category,
+                        pickup_location: pickup 
+                    },
+                    dataType: 'json',
+                    success: function(vehicles) {
+                        if (vehicles.length === 0) {
+                            $('#v_id').html('<option value="">No vehicles available</option>');
+                            return;
+                        }
+                        calculateDistancesAndPopulateDropdown(vehicles, pickup);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                        $('#v_id').html('<option value="">Error loading vehicles</option>');
                     }
                 });
             });
 
-            // Load driver details based on vehicle registration number
+            function calculateDistancesAndPopulateDropdown(vehicles, pickup) {
+                var service = new google.maps.DistanceMatrixService();
+                service.getDistanceMatrix({
+                    origins: [pickup],
+                    destinations: vehicles.map(v => v.v_location),
+                    travelMode: 'DRIVING',
+                    unitSystem: google.maps.UnitSystem.METRIC,
+                }, function(response, status) {
+                    if (status === 'OK') {
+                        var elements = response.rows[0].elements;
+                        
+                        // Add distances to vehicles array
+                        vehicles.forEach((vehicle, index) => {
+                            if (elements[index].status === 'OK') {
+                                vehicle.distance = elements[index].distance.value / 1000;
+                            } else {
+                                vehicle.distance = Infinity;
+                            }
+                        });
+                        
+                        // Sort vehicles by distance
+                        vehicles.sort((a, b) => a.distance - b.distance);
+                        
+                        // Populate dropdown
+                        var options = '<option value="">Select Vehicle Registration</option>';
+                        vehicles.forEach(vehicle => {
+                            var distanceText = vehicle.distance !== Infinity ? 
+                                ` (${vehicle.distance.toFixed(2)} km)` : ' (distance N/A)';
+                            options += `<option value="${vehicle.v_id}">${vehicle.v_reg_no}${distanceText}</option>`;
+                        });
+                        $('#v_id').html(options);
+                    }
+                });
+            }
+
+            // Load driver details when vehicle is selected
             $('#v_id').change(function() {
                 var v_id = $(this).val();
+                if (!v_id) return;
+                
                 $.ajax({
                     url: "get_driver_details.php",
                     method: "POST",
@@ -278,10 +333,12 @@ function calculateDistance($origin, $destination, $apiKey) {
                             $('#driver_name').val(data.driver_name);
                             $('#d_id').val(data.d_id);
                             $('#v_cost').val(data.v_cost);
-                            calculateHire();
                         } else {
                             alert(data.error);
                         }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", error);
                     }
                 });
             });
@@ -293,34 +350,46 @@ function calculateDistance($origin, $destination, $apiKey) {
 
                 if (pickup && drop && !isNaN(v_cost)) {
                     var service = new google.maps.DistanceMatrixService();
-                    service.getDistanceMatrix(
-                        {
-                            origins: [pickup],
-                            destinations: [drop],
-                            travelMode: 'DRIVING',
-                            unitSystem: google.maps.UnitSystem.METRIC,
-                        }, function(response, status) {
-                            if (status == 'OK') {
-                                var origins = response.originAddresses;
-                                var destinations = response.destinationAddresses;
+                    service.getDistanceMatrix({
+                        origins: [pickup],
+                        destinations: [drop],
+                        travelMode: 'DRIVING',
+                        unitSystem: google.maps.UnitSystem.METRIC,
+                    }, function(response, status) {
+                        if (status == 'OK') {
+                            var origins = response.originAddresses;
+                            var destinations = response.destinationAddresses;
 
-                                for (var i = 0; i < origins.length; i++) {
-                                    var results = response.rows[i].elements;
-                                    for (var j = 0; j < results.length; j++) {
-                                        var element = results[j];
+                            for (var i = 0; i < origins.length; i++) {
+                                var results = response.rows[i].elements;
+                                for (var j = 0; j < results.length; j++) {
+                                    var element = results[j];
+                                    if (element.status === 'OK') {
                                         var distance = element.distance.value / 1000; // Convert meters to kilometers
                                         var hire = distance * v_cost;
                                         $('#distance').val(distance.toFixed(2));
                                         $('#hire').val(hire.toFixed(2));
+                                    } else {
+                                        alert('Unable to calculate distance. Please check the addresses.');
+                                        $('#distance').val('');
+                                        $('#hire').val('');
                                     }
                                 }
                             }
-                        });
+                        } else {
+                            alert('Error: ' + status);
+                        }
+                    });
                 }
             }
 
             // Call calculateHire when the pickup or drop point changes
             $('#pickup_location, #return_location').on('change', calculateHire);
+
+            // Also call calculateHire when v_cost is updated via vehicle selection
+            $('#v_id').change(function() {
+                setTimeout(calculateHire, 500); // Give time for v_cost to be set
+            });
         });
         </script>
 
@@ -330,8 +399,19 @@ function calculateDistance($origin, $destination, $apiKey) {
         <script>
         // Initialize Google Places Autocomplete for pickup and drop inputs
         function initAutocomplete() {
-            new google.maps.places.Autocomplete(document.getElementById('pickup_location'));
-            new google.maps.places.Autocomplete(document.getElementById('return_location'));
+            var pickupInput = document.getElementById('pickup_location');
+            var dropInput = document.getElementById('return_location');
+            
+            new google.maps.places.Autocomplete(pickupInput);
+            new google.maps.places.Autocomplete(dropInput);
+            
+            // Clear vehicle selection when pickup location changes
+            pickupInput.addEventListener('change', function() {
+                $('#v_id').html('<option value="">Select Vehicle Registration</option>');
+                $('#v_category').val('');
+                $('#driver_name').val('');
+                $('#d_id').val('');
+            });
         }
 
         // Call initAutocomplete when the page loads

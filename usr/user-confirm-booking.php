@@ -56,6 +56,16 @@ function getDriverName($mysqli, $d_id) {
     }
 }
 
+// Get user's location
+$user_query = "SELECT u_location FROM tms_user WHERE u_id = ?";
+$user_stmt = $mysqli->prepare($user_query);
+$user_stmt->bind_param('i', $aid);
+$user_stmt->execute();
+$user_result = $user_stmt->get_result();
+$user = $user_result->fetch_object();
+$user_location = $user->u_location;
+$user_stmt->close();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -126,7 +136,8 @@ function getDriverName($mysqli, $d_id) {
                                 </div>
                                 <div class="form-group">
                                     <label>Pickup Point</label>
-                                    <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
+                                    <input type="text" class="form-control" id="pickup_location" name="pickup_location" 
+                                           value="<?php echo htmlspecialchars($user_location); ?>" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Drop Point</label>
@@ -216,13 +227,18 @@ function getDriverName($mysqli, $d_id) {
         new google.maps.places.Autocomplete(pickupInput);
         new google.maps.places.Autocomplete(returnInput);
 
-        // Add event listeners to recalculate when the input changes
-        pickupInput.addEventListener('change', calculateHire);
+        // Calculate hire when return location changes
         returnInput.addEventListener('change', calculateHire);
     }
 
-    // Call initAutocomplete when the page loads
-    google.maps.event.addDomListener(window, 'load', initAutocomplete);
+    // Calculate hire on page load if both locations are set
+    window.onload = function() {
+        initAutocomplete();
+        if (document.getElementById('pickup_location').value && 
+            document.getElementById('return_location').value) {
+            calculateHire();
+        }
+    };
     </script>
 
 </body>

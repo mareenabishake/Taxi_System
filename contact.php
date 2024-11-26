@@ -1,108 +1,142 @@
- <!DOCTYPE html>
- <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
- <?php include("vendor/inc/head.php");?>
+<?php include("vendor/inc/head.php");?>
 
- <body>
+<body>
+    <!-- Navigation -->
+    <?php include("vendor/inc/nav.php");?>
 
-     <!-- Navigation -->
-     <?php include("vendor/inc/nav.php");?>
-     <!-- Page Content -->
-     <div class="container">
+    <!-- Hero Section -->
+    <div class="contact-hero">
+        <div class="overlay"></div>
+        <div class="container">
+            <h1 class="text-white text-center">Get In Touch</h1>
+            <p class="text-white text-center lead">We're here to help and answer any questions you might have</p>
+        </div>
+    </div>
 
-         <!-- Page Heading/Breadcrumbs -->
-         <h1 class="mt-4 mb-3">Contact Us
-         </h1>
-         
-         <ol class="breadcrumb">
-             <li class="breadcrumb-item">
-                 <a href="index.php">Home</a>
-             </li>
-             <li class="breadcrumb-item active">Contact</li>
-         </ol>
-         
-         <!-- Content Row -->
-         <div class="row">
-             <!-- Map Column -->
-             <div class="col-lg-8 mb-4">
-                 <h3>Send us a Message</h3>
-                 <form name="sentMessage" id="contactForm" novalidate>
-                     <div class="control-group form-group">
-                         <div class="controls">
-                             <label>Full Name:</label>
-                             <input type="text" class="form-control" id="name" required data-validation-required-message="Please enter your name.">
-                             <p class="help-block"></p>
-                         </div>
-                     </div>
-                     <div class="control-group form-group">
-                         <div class="controls">
-                             <label>Phone Number:</label>
-                             <input type="tel" class="form-control" id="phone" required data-validation-required-message="Please enter your phone number.">
-                         </div>
-                     </div>
-                     <div class="control-group form-group">
-                         <div class="controls">
-                             <label>Email Address:</label>
-                             <input type="email" class="form-control" id="email" required data-validation-required-message="Please enter your email address.">
-                         </div>
-                     </div>
-                     <div class="control-group form-group">
-                         <div class="controls">
-                             <label>Message:</label>
-                             <textarea rows="10" cols="100" class="form-control" id="message" required data-validation-required-message="Please enter your message" maxlength="999" style="resize:none"></textarea>
-                         </div>
-                     </div>
-                     <div id="success"></div>
-                     <!-- For success/fail messages -->
-                     <button type="submit" class="btn btn-success" id="sendMessageButton">Send Message</button>
-                 </form>
-             </div>
-             
-             <!-- Contact Details Column -->
-             <div class="col-lg-4 mb-4">
-                 <h3>Contact Details</h3>
-                 <p>
-                     Wattala,
-                     <br>Colombo,Sri Lanka.
-                     <br>
-                 </p>
-                 <p>
-                     <abbr title="Phone">Phone</abbr>: +94 112784673
-                 </p>
-                 <p>
-                     <abbr title="Email">Email</abbr>:
-                     <a href="citytaxi@gmail.com">citytaxi@gmail.com
-                     </a>
-                 </p>
-                 <p>
-                     <abbr title="Hours">Open</abbr>: Monday - Sunday: 9:00 AM to 5:00 PM
-                 </p>
-             </div>
-         </div>
-         <!-- /.row -->
-         
-         <!-- Contact Form -->
-         <!-- In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
-         <div class="row">
+    <!-- Contact Section -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <!-- Contact Cards -->
+            <div class="col-md-4 mb-4">
+                <div class="contact-card text-center p-4">
+                    <div class="icon-circle mb-4">
+                        <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                    </div>
+                    <h4>Visit Us</h4>
+                    <p>123 Demo Street<br>Sample City, 12345</p>
+                </div>
+            </div>
 
+            <div class="col-md-4 mb-4">
+                <div class="contact-card text-center p-4">
+                    <div class="icon-circle mb-4">
+                        <i class="fas fa-phone fa-2x text-primary"></i>
+                    </div>
+                    <h4>Call Us</h4>
+                    <p>(123) 456-7890</p>
+                    <p class="text-muted">Mon-Fri: 9:00 AM - 5:00 PM</p>
+                </div>
+            </div>
 
-         </div>
-         <!-- /.row -->
+            <div class="col-md-4 mb-4">
+                <div class="contact-card text-center p-4">
+                    <div class="icon-circle mb-4">
+                        <i class="fas fa-envelope fa-2x text-primary"></i>
+                    </div>
+                    <h4>Email Us</h4>
+                    <a href="mailto:citytaxi@gmail.com" class="text-decoration-none">citytaxi@gmail.com</a>
+                </div>
+            </div>
+        </div>
 
-     </div>
-     <!-- /.container -->
+        <!-- Map Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.7287805603396!2d79.86363419999999!3d6.9229902!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593e45d939f5%3A0x6ad64989791f5800!2sCity%20taxi!5e0!3m2!1sen!2slk!4v1732349896374!5m2!1sen!2slk" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 
-     <!-- Footer -->
-     <?php include("vendor/inc/footer.php");?>
-     
-     <!-- Bootstrap core JavaScript -->
-     <script src="vendor/jquery/jquery.min.js"></script>
-     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Footer -->
+    <?php include("vendor/inc/footer.php");?>
 
-     <!-- Contact form JavaScript -->
-     <!-- Do not edit these files! In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
-     <script src="js/jqBootstrapValidation.js"></script>
-     <script src="js/contact_me.js"></script>
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
 
- </body>
- </html>
+    <style>
+        /* Custom CSS */
+        .contact-hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('vendor/img/contact-hero.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 50px;
+        }
+
+        .contact-hero .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .map-container {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 300;
+        }
+    </style>
+</body>
+</html>

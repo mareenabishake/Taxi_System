@@ -55,7 +55,7 @@
             $u_license_or_ID=$_POST['u_NIC'];
             $u_addr=$_POST['u_addr'];
             $u_email=$_POST['u_email'];
-            $u_pwd = password_hash($_POST['u_pwd'], PASSWORD_DEFAULT);
+            $u_pwd = md5($_POST['u_pwd']);
 
             $query="INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $mysqli->prepare($query);

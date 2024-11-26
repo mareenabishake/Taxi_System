@@ -14,6 +14,13 @@
      </li>
 
      <li class="nav-item">
+         <a class="nav-link" href="driver-update-location.php">
+             <i class="fas fa-fw fa-map-marker-alt"></i>
+             <span>Update Location</span>
+         </a>
+     </li>
+
+     <li class="nav-item">
          <a class="nav-link" href="driver-view-feedback.php">
              <i class="fas fa-fw fa-comments"></i>
              <span>Feedbacks</span>
