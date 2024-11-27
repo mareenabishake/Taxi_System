@@ -46,37 +46,62 @@
       }
   }
 
-  //Add User
-  if(isset($_POST['add_user']))
-    {
-            $u_fname=$_POST['u_fname'];
-            $u_lname = $_POST['u_lname'];
-            $u_phone=$_POST['u_phone'];
-            $u_license_or_ID=$_POST['u_NIC'];
-            $u_addr=$_POST['u_addr'];
-            $u_email=$_POST['u_email'];
-            $u_pwd = md5($_POST['u_pwd']);
+  function emailExists($mysqli, $email, $table) {
+      $emailColumn = 'u_email'; // default for tms_user
+      
+      if ($table === 'tms_driver') {
+          $emailColumn = 'd_email';
+      } else if ($table === 'tms_operator') {
+          $emailColumn = 'o_email';
+      }
+      
+      $query = "SELECT COUNT(*) as count FROM $table WHERE $emailColumn = ?";
+      
+      if ($stmt = $mysqli->prepare($query)) {
+          $stmt->bind_param('s', $email);
+          $stmt->execute();
+          $result = $stmt->get_result();
+          $row = $result->fetch_assoc();
+          $stmt->close();
+          return $row['count'] > 0;
+      }
+      return false;
+  }
 
-            $query="INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $u_pwd);
-            $stmt->execute();
-            if($stmt)
-            {
-                // Send confirmation email
-                $plainTextPassword = $_POST['u_pwd']; // Get the plain text password
-                $emailSent = sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $plainTextPassword);
-                if($emailSent) {
-                    $succ = "User Added and Confirmation Email Sent";
-                } else {
-                    $succ = "User Added but Failed to Send Confirmation Email";
-                }
-            }
-            else 
-            {
-                $err = "Please Try Again Later";
-            }
-    }
+  //Add User
+  if(isset($_POST['add_user'])) {
+      $u_fname = $_POST['u_fname'];
+      $u_lname = $_POST['u_lname'];
+      $u_phone = $_POST['u_phone'];
+      $u_license_or_ID = $_POST['u_NIC'];
+      $u_addr = $_POST['u_addr'];
+      $u_email = $_POST['u_email'];
+      
+      // Check if email already exists
+      if (emailExists($mysqli, $u_email, 'tms_user')) {
+          $err = "Error: Email address already registered. Please use a different email.";
+      } else {
+          $u_pwd = md5($_POST['u_pwd']);
+          
+          $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
+          $stmt = $mysqli->prepare($query);
+          $rc = $stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $u_pwd);
+          
+          if($stmt->execute()) {
+              // Send confirmation email
+              $plainTextPassword = $_POST['u_pwd'];
+              $emailSent = sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $plainTextPassword);
+              if($emailSent) {
+                  $succ = "User Added and Confirmation Email Sent";
+              } else {
+                  $succ = "User Added but Failed to Send Confirmation Email";
+              }
+          } else {
+              $err = "Please Try Again Later";
+          }
+          $stmt->close();
+      }
+  }
 ?>
 
 <!DOCTYPE html>

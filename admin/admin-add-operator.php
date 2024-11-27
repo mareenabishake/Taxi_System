@@ -43,6 +43,27 @@ function sendWelcomeEmail($userEmail, $userName, $userPassword) {
     }
 }
 
+function emailExists($mysqli, $email, $table) {
+    $emailColumn = 'u_email'; // default for tms_user
+    
+    if ($table === 'tms_driver') {
+        $emailColumn = 'd_email';
+    } else if ($table === 'tms_operator') {
+        $emailColumn = 'o_email';
+    }
+    
+    $query = "SELECT COUNT(*) as count FROM $table WHERE $emailColumn = ?";
+    
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row['count'] > 0;
+    }
+    return false;
+}
 
 // Add Operator code
 if (isset($_POST['add_operator'])) {
@@ -54,32 +75,40 @@ if (isset($_POST['add_operator'])) {
     $o_email = $_POST['o_email'];
     $o_pwd = $_POST['o_pwd'];
 
-    // Hash the password using MD5
-    $hashed_pwd = md5($o_pwd);
-
-    // Prepare the SQL query
-    $query = "INSERT INTO tms_operator (o_fname, o_lname, o_phone, o_nic, o_addr, o_email, o_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
-
-    if ($stmt) {
-        // Bind the parameters to the SQL query
-        $stmt->bind_param('sssssss', $o_fname, $o_lname, $o_phone, $o_nic, $o_addr, $o_email, $hashed_pwd);
-
-        if ($stmt->execute()) {
-            if (sendWelcomeEmail($o_email, $o_fname . ' ' . $o_lname, $o_pwd)) {
-                $succ = "Operator Added and Welcome Email Sent";
-            } else {
-                $succ = "Operator Added but Failed to Send Welcome Email";
-            }
-        } else {
-            $err = "Error: Could not execute the query. Please try again. " . $stmt->error;
-        }
-
-        $stmt->close();
+    // Check if email already exists
+    if (emailExists($mysqli, $o_email, 'tms_operator')) {
+        $err = "Error: Email address already registered. Please use a different email.";
     } else {
-        $err = "Error: Could not prepare the query. Please try again. " . $mysqli->error;
+        // Hash the password using MD5
+        $hashed_pwd = md5($o_pwd);
+
+        // Prepare the SQL query
+        $query = "INSERT INTO tms_operator (o_fname, o_lname, o_phone, o_nic, o_addr, o_email, o_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $mysqli->prepare($query);
+
+        if ($stmt) {
+            // Bind the parameters to the SQL query
+            $stmt->bind_param('sssssss', $o_fname, $o_lname, $o_phone, $o_nic, $o_addr, $o_email, $hashed_pwd);
+
+            if ($stmt->execute()) {
+                if (sendWelcomeEmail($o_email, $o_fname . ' ' . $o_lname, $o_pwd)) {
+                    $succ = "Operator Added and Welcome Email Sent";
+                } else {
+                    $succ = "Operator Added but Failed to Send Welcome Email";
+                }
+            } else {
+                $err = "Error: Could not execute the query. Please try again. " . $stmt->error;
+            }
+
+            $stmt->close();
+        } else {
+            $err = "Error: Could not prepare the query. " . $mysqli->error;
+        }
     }
 }
+
+// Close the database connection
+$mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -219,6 +248,9 @@ if (isset($_POST['add_operator'])) {
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin.min.js"></script>
+
+    <!-- Add this line -->
+    <script src="vendor/js/swal.js"></script>
 
 </body>
 </html>

@@ -40,6 +40,27 @@ function sendWelcomeEmail($userEmail, $userName, $userPassword) {
     }
 }
 
+function emailExists($mysqli, $email, $table) {
+    $emailColumn = 'u_email'; // default for tms_user
+    
+    if ($table === 'tms_driver') {
+        $emailColumn = 'd_email';
+    } else if ($table === 'tms_operator') {
+        $emailColumn = 'o_email';
+    }
+    
+    $query = "SELECT COUNT(*) as count FROM $table WHERE $emailColumn = ?";
+    
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row['count'] > 0;
+    }
+    return false;
+}
 
 // Add User
 if (isset($_POST['add_user'])) {
@@ -51,32 +72,37 @@ if (isset($_POST['add_user'])) {
     $u_email = $_POST['u_email'];
     $u_pwd = $_POST['u_pwd'];
 
-    // Hash the password using MD5
-    $hashed_pwd = md5($u_pwd);
-
-    // Prepare the SQL query (removed u_category)
-    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
-
-    if ($stmt) {
-        // Bind the parameters to the SQL query (removed u_category)
-        $stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_NIC, $u_addr, $u_email, $hashed_pwd);
-
-        // Execute the query
-        if ($stmt->execute()) {
-            if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
-                $succ = "Account Created and Welcome Email Sent. Proceed To Log In";
-            } else {
-                $succ = "Account Created but Failed to Send Welcome Email. Proceed To Log In";
-            }
-        } else {
-            $err = "Error: Could not execute the query. Please try again.";
-        }
-
-        // Close the statement
-        $stmt->close();
+    // Check if email already exists
+    if (emailExists($mysqli, $u_email, 'tms_user')) {
+        $err = "Error: Email address already registered. Please use a different email.";
     } else {
-        $err = "Error: Could not prepare the query. Please try again.";
+        // Hash the password using MD5
+        $hashed_pwd = md5($u_pwd);
+
+        // Prepare the SQL query (removed u_category)
+        $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $mysqli->prepare($query);
+
+        if ($stmt) {
+            // Bind the parameters to the SQL query (removed u_category)
+            $stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_NIC, $u_addr, $u_email, $hashed_pwd);
+
+            // Execute the query
+            if ($stmt->execute()) {
+                if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
+                    $succ = "Account Created and Welcome Email Sent. Proceed To Log In";
+                } else {
+                    $succ = "Account Created but Failed to Send Welcome Email. Proceed To Log In";
+                }
+            } else {
+                $err = "Error: Could not execute the query. Please try again.";
+            }
+
+            // Close the statement
+            $stmt->close();
+        } else {
+            $err = "Error: Could not prepare the query. " . $mysqli->error;
+        }
     }
 
     // Close the database connection

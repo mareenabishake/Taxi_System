@@ -43,6 +43,27 @@ function sendWelcomeEmail($userEmail, $userName, $userPassword) {
     }
 }
 
+function emailExists($mysqli, $email, $table) {
+    $emailColumn = 'u_email'; // default for tms_user
+    
+    if ($table === 'tms_driver') {
+        $emailColumn = 'd_email';
+    } else if ($table === 'tms_operator') {
+        $emailColumn = 'o_email';
+    }
+    
+    $query = "SELECT COUNT(*) as count FROM $table WHERE $emailColumn = ?";
+    
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row['count'] > 0;
+    }
+    return false;
+}
 
 // Add User Code
 if (isset($_POST['add_user'])) {
@@ -53,32 +74,40 @@ if (isset($_POST['add_user'])) {
     $u_email = $_POST['u_email'];
     $u_pwd = $_POST['u_pwd'];
 
-    // Hash the password using MD5
-    $hashed_pwd = md5($u_pwd);
-
-    // Prepare the SQL query
-    $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
-
-    if ($stmt) {
-        // Bind the parameters to the SQL query
-        $stmt->bind_param('ssssss', $u_fname, $u_lname, $u_phone, $u_addr, $u_email, $hashed_pwd);
-
-        if ($stmt->execute()) {
-            if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
-                $succ = "User Added and Welcome Email Sent";
-            } else {
-                $succ = "User Added but Failed to Send Welcome Email";
-            }
-        } else {
-            $err = "Error: Could not execute the query. Please try again.";
-        }
-
-        $stmt->close();
+    // Check if email already exists
+    if (emailExists($mysqli, $u_email, 'tms_user')) {
+        $err = "Error: Email address already registered. Please use a different email.";
     } else {
-        $err = "Error: Could not prepare the query. Please try again.";
+        // Hash the password using MD5
+        $hashed_pwd = md5($u_pwd);
+
+        // Prepare the SQL query
+        $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $mysqli->prepare($query);
+
+        if ($stmt) {
+            // Bind the parameters to the SQL query
+            $stmt->bind_param('ssssss', $u_fname, $u_lname, $u_phone, $u_addr, $u_email, $hashed_pwd);
+
+            if ($stmt->execute()) {
+                if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
+                    $succ = "User Added and Welcome Email Sent";
+                } else {
+                    $succ = "User Added but Failed to Send Welcome Email";
+                }
+            } else {
+                $err = "Error: Could not execute the query. Please try again.";
+            }
+
+            $stmt->close();
+        } else {
+            $err = "Error: Could not prepare the query. " . $mysqli->error;
+        }
     }
 }
+
+// Close the database connection
+$mysqli->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -41,6 +41,27 @@ function sendWelcomeEmail($userEmail, $userName, $userPassword) {
     }
 }
 
+function emailExists($mysqli, $email, $table) {
+    $emailColumn = 'u_email'; // default for tms_user
+    
+    if ($table === 'tms_driver') {
+        $emailColumn = 'd_email';
+    } else if ($table === 'tms_operator') {
+        $emailColumn = 'o_email';
+    }
+    
+    $query = "SELECT COUNT(*) as count FROM $table WHERE $emailColumn = ?";
+    
+    if ($stmt = $mysqli->prepare($query)) {
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return $row['count'] > 0;
+    }
+    return false;
+}
 
 // Add Driver
 if (isset($_POST['add_driver'])) {
@@ -50,34 +71,37 @@ if (isset($_POST['add_driver'])) {
     $d_license = $_POST['d_license'];
     $d_addr = $_POST['d_addr'];
     $d_email = $_POST['d_email'];
-    $d_pwd = $_POST['d_pwd']; 
+    $d_pwd = $_POST['d_pwd'];
 
-    // Hash the password using MD5
-    $hashed_pwd = md5($d_pwd);
-
-    // Prepare the SQL query
-    $query = "INSERT INTO tms_driver (d_fname, d_lname, d_phone, d_license, d_addr, d_email, d_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
-
-    if ($stmt) {
-        // Bind the parameters to the SQL query
-        $stmt->bind_param('sssssss', $d_fname, $d_lname, $d_phone, $d_license, $d_addr, $d_email, $hashed_pwd);
-
-        // Execute the query
-        if ($stmt->execute()) {
-            if (sendWelcomeEmail($d_email, $d_fname . ' ' . $d_lname, $d_pwd)) {
-                $succ = "Driver Account Created and Welcome Email Sent. Proceed To Log In";
-            } else {
-                $succ = "Driver Account Created but Failed to Send Welcome Email. Proceed To Log In";
-            }
-        } else {
-            $err = "Error: Could not execute the query. " . $stmt->error;
-        }
-
-        // Close the statement
-        $stmt->close();
+    // Check if email already exists
+    if (emailExists($mysqli, $d_email, 'tms_driver')) {
+        $err = "Error: Email address already registered. Please use a different email.";
     } else {
-        $err = "Error: Could not prepare the query. " . $mysqli->error;
+        // Existing registration code continues here
+        $hashed_pwd = md5($d_pwd);
+        $query = "INSERT INTO tms_driver (d_fname, d_lname, d_phone, d_license, d_addr, d_email, d_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            // Bind the parameters to the SQL query
+            $stmt->bind_param('sssssss', $d_fname, $d_lname, $d_phone, $d_license, $d_addr, $d_email, $hashed_pwd);
+
+            // Execute the query
+            if ($stmt->execute()) {
+                if (sendWelcomeEmail($d_email, $d_fname . ' ' . $d_lname, $d_pwd)) {
+                    $succ = "Driver Account Created and Welcome Email Sent. Proceed To Log In";
+                } else {
+                    $succ = "Driver Account Created but Failed to Send Welcome Email. Proceed To Log In";
+                }
+            } else {
+                $err = "Error: Could not execute the query. " . $stmt->error;
+            }
+
+            // Close the statement
+            $stmt->close();
+        } else {
+            $err = "Error: Could not prepare the query. " . $mysqli->error;
+        }
     }
 
     // Close the database connection
