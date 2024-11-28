@@ -60,16 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 <div class="form-group">
                                     <label for="card_number">Card Number</label>
-                                    <input type="text" class="form-control" id="card_number" name="card_number" required>
+                                    <input type="text" class="form-control" id="card_number" name="card_number" 
+                                           required pattern="[0-9]{16}" maxlength="16" placeholder="1234567890123456">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
                                         <label for="expiry_date">Expiry Date</label>
-                                        <input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                                        <input type="text" class="form-control" id="expiry_date" name="expiry_date" 
+                                               required pattern="(0[1-9]|1[0-2])\/([0-9]{2})" placeholder="MM/YY" maxlength="5">
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="cvv">CVV</label>
-                                        <input type="text" class="form-control" id="cvv" name="cvv" required>
+                                        <input type="text" class="form-control" id="cvv" name="cvv" 
+                                               required pattern="[0-9]{3,4}" maxlength="4" placeholder="123">
                                     </div>
                                 </div>
                                 <div class="form-group mb-5">
@@ -102,5 +105,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Custom scripts for all pages-->
     <script src="vendor/js/sb-admin.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const cardNumber = document.getElementById('card_number');
+        const expiryDate = document.getElementById('expiry_date');
+        const cvv = document.getElementById('cvv');
+
+        // Validation patterns
+        const patterns = {
+            cardNumber: /^[0-9]{16}$/,
+            expiryDate: /^(0[1-9]|1[0-2])\/([0-9]{2})$/,
+            cvv: /^[0-9]{3,4}$/
+        };
+
+        // Real-time validation
+        function validateInput(input, pattern) {
+            if (pattern.test(input.value)) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                return true;
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                return false;
+            }
+        }
+
+        // Add validation feedback elements
+        cardNumber.insertAdjacentHTML('afterend', '<div class="invalid-feedback">Please enter a valid 16-digit card number</div>');
+        expiryDate.insertAdjacentHTML('afterend', '<div class="invalid-feedback">Please enter a valid expiry date (MM/YY)</div>');
+        cvv.insertAdjacentHTML('afterend', '<div class="invalid-feedback">Please enter a valid CVV (3-4 digits)</div>');
+
+        // Add input event listeners
+        cardNumber.addEventListener('input', () => validateInput(cardNumber, patterns.cardNumber));
+        expiryDate.addEventListener('input', () => validateInput(expiryDate, patterns.expiryDate));
+        cvv.addEventListener('input', () => validateInput(cvv, patterns.cvv));
+
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            isValid = validateInput(cardNumber, patterns.cardNumber) && isValid;
+            isValid = validateInput(expiryDate, patterns.expiryDate) && isValid;
+            isValid = validateInput(cvv, patterns.cvv) && isValid;
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
 </body>
 </html>

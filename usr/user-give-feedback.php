@@ -101,7 +101,7 @@
                              <?php }?>
                              <div class="form-group">
                                  <label for="exampleInputEmail1">My Testimonial</label>
-                                 <textarea type="text" class="form-control" placeholder="Give Your Feedback" id="exampleInputEmail1" name="f_content"></textarea>
+                                 <textarea type="text" class="form-control" placeholder="Give Your Feedback" id="exampleInputEmail1" name="f_content" required></textarea>
                              </div>
                              <button type="submit" name="give_feedback" class="btn btn-success">Give Feedback</button>
                          </form>

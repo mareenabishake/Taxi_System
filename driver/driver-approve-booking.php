@@ -1,4 +1,4 @@
- <?php
+<?php
   session_start();
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
@@ -10,21 +10,31 @@
   use Twilio\Rest\Client;
 
   // Twilio credentials
-  $sid = "AC43be29fe9b3536a42abf3b9293acb717";
-  $token = "9606b892cdd18e1b92366107ce794d2f";
-  $messagingServiceSid = "MG147a8246a1456e1f4ca5cf88c237acc0";
+  $sid = "AC5ffd837912b29c046a168da0e3d95869";
+  $token = "e33f40d8ff9f686a5f981cde7adfe6ed";
+  $messagingServiceSid = "MG4bda8af2a2da8ce9070908cda97e9c35";
 
   // Accept Trip
   if(isset($_POST['accept_trip'])) {
       $b_id = $_GET['b_id'];
       $b_status = 'Ongoing';
       
+      // Update booking status
       $query = "UPDATE tms_bookings SET b_status=? WHERE b_id=? AND d_id=?";
       $stmt = $mysqli->prepare($query);
       $stmt->bind_param('sii', $b_status, $b_id, $d_id);
       $stmt->execute();
       
-      if($stmt) {
+      // Update vehicle status to Busy
+      $vehicle_query = "UPDATE tms_vehicle v 
+                       JOIN tms_bookings b ON v.v_id = b.v_id 
+                       SET v.v_status = 'Busy' 
+                       WHERE b.b_id = ? AND b.d_id = ?";
+      $vehicle_stmt = $mysqli->prepare($vehicle_query);
+      $vehicle_stmt->bind_param('ii', $b_id, $d_id);
+      $vehicle_stmt->execute();
+      
+      if($stmt && $vehicle_stmt) {
           $_SESSION['success'] = "Trip Accepted Successfully";
 
           // Fetch booking, user, driver, and vehicle details
