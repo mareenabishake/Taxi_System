@@ -18,29 +18,75 @@
   $booking_details = $res->fetch_object();
 
   //Add Trip Feedback
-  if(isset($_POST['give_trip_feedback']))
-    {
-            $tf_feedback_text = $_POST['tf_feedback_text'];
-            
-            $query = "INSERT INTO tms_trip_feedback (b_id, tf_feedback_text) VALUES (?, ?)";
-            $stmt = $mysqli->prepare($query);
-            $rc = $stmt->bind_param('is', $b_id, $tf_feedback_text);
-            $stmt->execute();
-                if($stmt)
-                {
-                    $succ = "Trip Feedback Submitted";
-                }
-                else 
-                {
-                    $err = "Please Try Again Later";
-                }
-            }
+  if(isset($_POST['give_trip_feedback'])) {
+    $tf_feedback_text = $_POST['tf_feedback_text'];
+    $rating = isset($_POST['rating']) ? (int)$_POST['rating'] : 0;
+    
+    if(empty($tf_feedback_text)) {
+        $err = "Feedback text is required";
+    } else if($rating < 1 || $rating > 5) {
+        $err = "Please select a rating between 1 and 5 stars";
+    } else {
+        // Append rating to feedback text
+        $tf_feedback_text .= " [Rating: " . $rating . " stars]";
+        
+        $query = "INSERT INTO tms_trip_feedback (b_id, tf_feedback_text) VALUES (?, ?)";
+        $stmt = $mysqli->prepare($query);
+        $rc = $stmt->bind_param('is', $b_id, $tf_feedback_text);
+        $stmt->execute();
+        
+        if($stmt) {
+            $succ = "Trip Feedback Submitted";
+        } else {
+            $err = "Please Try Again Later";
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <?php include('vendor/inc/head.php');?>
+
+<style>
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+
+    .star-rating label {
+        width: 40px;
+        height: 40px;
+        background-color: #ccc;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0 2px;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input[type="radio"]:checked ~ label {
+        background-color: #ffd700;
+    }
+
+    .star-rating input[type="radio"]:active + label {
+        transform: scale(0.95);
+    }
+
+    .rating-text {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+    }
+</style>
 
 <body id="page-top">
     <!--Start Navigation Bar-->
@@ -112,6 +158,22 @@
                                 <input type="text" required readonly class="form-control" value="<?php echo $booking_details->v_reg_no;?>" id="v_reg_no" name="v_reg_no">
                             </div>
                             <div class="form-group">
+                                <label>Rating</label>
+                                <div class="star-rating">
+                                    <input type="radio" name="rating" value="5" id="star5" required>
+                                    <label for="star5"></label>
+                                    <input type="radio" name="rating" value="4" id="star4">
+                                    <label for="star4"></label>
+                                    <input type="radio" name="rating" value="3" id="star3">
+                                    <label for="star3"></label>
+                                    <input type="radio" name="rating" value="2" id="star2">
+                                    <label for="star2"></label>
+                                    <input type="radio" name="rating" value="1" id="star1">
+                                    <label for="star1"></label>
+                                </div>
+                                <div class="rating-text" id="ratingText">Click stars to rate</div>
+                            </div>
+                            <div class="form-group">
                                 <label for="tf_feedback_text">Your Feedback</label>
                                 <textarea class="form-control" id="tf_feedback_text" name="tf_feedback_text" rows="5" maxlength="255" required></textarea>
                             </div>
@@ -153,5 +215,35 @@
         <!--INject Sweet alert js-->
         <script src="vendor/js/swal.js"></script>
         
+        <script>
+        document.querySelectorAll('.star-rating input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const ratingText = document.getElementById('ratingText');
+                const rating = e.target.value;
+                const ratingMessages = {
+                    1: 'Poor',
+                    2: 'Fair',
+                    3: 'Good',
+                    4: 'Very Good',
+                    5: 'Excellent'
+                };
+                ratingText.textContent = ratingMessages[rating];
+            });
+        });
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            const feedback = document.querySelector('#tf_feedback_text').value.trim();
+            
+            if (!rating) {
+                e.preventDefault();
+                swal("Error!", "Please select a rating", "error");
+            } else if (!feedback) {
+                e.preventDefault();
+                swal("Error!", "Please enter your feedback", "error");
+            }
+        });
+        </script>
 </body>
 </html>
