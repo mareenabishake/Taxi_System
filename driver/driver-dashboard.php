@@ -5,6 +5,26 @@ include('vendor/inc/checklogin.php');
 check_login();
 $d_id = $_SESSION['d_id'];
 
+if(isset($_POST['update_vehicle_status']) && isset($_POST['v_id'])) {
+    $v_status = $_POST['v_status'];
+    $v_id = $_POST['v_id'];
+    
+    // Verify that this vehicle belongs to the logged-in driver
+    $query = "UPDATE tms_vehicle SET v_status = ? WHERE v_id = ? AND d_id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('sii', $v_status, $v_id, $d_id);
+    
+    if($stmt->execute()) {
+        $_SESSION['success'] = "Vehicle status updated successfully";
+    } else {
+        $_SESSION['error'] = "Failed to update vehicle status";
+    }
+    
+    // Redirect to clear POST data
+    header("Location: driver-dashboard.php");
+    exit();
+}
+
 if(isset($_SESSION['success'])) {
     echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
             ' . $_SESSION['success'] . '
@@ -113,6 +133,52 @@ if(isset($_SESSION['success'])) {
                                 </span>
                             </a>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Vehicle Status Update -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <i class="fas fa-car"></i>
+                        Update Vehicle Status
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        // Get the vehicle assigned to this driver
+                        $vehicle_query = "SELECT v_id, v_reg_no, v_status FROM tms_vehicle WHERE d_id = ? LIMIT 1";
+                        $stmt = $mysqli->prepare($vehicle_query);
+                        $stmt->bind_param('i', $d_id);
+                        $stmt->execute();
+                        $vehicle_result = $stmt->get_result();
+                        $vehicle = $vehicle_result->fetch_object();
+                        
+                        if($vehicle) {
+                        ?>
+                            <form method="POST">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Vehicle Reg No:</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control-plaintext" readonly value="<?php echo $vehicle->v_reg_no; ?>">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Current Status:</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-control" name="v_status">
+                                            <option value="Available" <?php echo ($vehicle->v_status == 'Available') ? 'selected' : ''; ?>>Available</option>
+                                            <option value="Busy" <?php echo ($vehicle->v_status == 'Busy') ? 'selected' : ''; ?>>Busy</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="v_id" value="<?php echo $vehicle->v_id; ?>">
+                                <input type="hidden" name="update_vehicle_status" value="1">
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary">Update Status</button>
+                                </div>
+                            </form>
+                        <?php } else { ?>
+                            <div class="alert alert-info">No vehicle is currently assigned to you.</div>
+                        <?php } ?>
                     </div>
                 </div>
                 

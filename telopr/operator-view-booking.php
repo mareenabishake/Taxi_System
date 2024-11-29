@@ -1,4 +1,4 @@
- <?php
+<?php
   session_start();
   include('vendor/inc/config.php');
   include('vendor/inc/checklogin.php');
@@ -72,8 +72,26 @@
                                      
                                      <tr>
                                          <td><?php echo $cnt;?></td>
-                                         <td><?php echo $row->u_fname;?> <?php echo $row->u_lname;?></td>
-                                         <td><?php echo $row->u_phone;?></td>
+                                         <td>
+                                             <?php 
+                                             if ($row->u_id) {
+                                                 echo $row->u_fname . ' ' . $row->u_lname;
+                                             } else {
+                                                 $customer = json_decode($row->customer_details, true);
+                                                 echo $customer['name'] . ' (Unregistered)';
+                                             }
+                                             ?>
+                                         </td>
+                                         <td>
+                                             <?php 
+                                             if ($row->u_id) {
+                                                 echo $row->u_phone;
+                                             } else {
+                                                 $customer = json_decode($row->customer_details, true);
+                                                 echo $customer['phone'];
+                                             }
+                                             ?>
+                                         </td>
                                          <td><?php echo $row->pickup_location;?></td>
                                          <td><?php echo $row->return_location;?></td>
                                          <td><?php echo $row->b_date;?></td>

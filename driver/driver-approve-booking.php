@@ -38,14 +38,22 @@
           $_SESSION['success'] = "Trip Accepted Successfully";
 
           // Fetch booking, user, driver, and vehicle details
-          $booking_query = "SELECT b.*, u.u_fname, u.u_lname, u.u_phone, 
-                            d.d_fname, d.d_lname, d.d_phone, d.d_license,
-                            v.v_reg_no
-                            FROM tms_bookings b 
-                            JOIN tms_user u ON b.u_id = u.u_id 
-                            JOIN tms_driver d ON b.d_id = d.d_id
-                            JOIN tms_vehicle v ON b.v_id = v.v_id
-                            WHERE b.b_id = ?";
+          $booking_query = "SELECT b.*, 
+                           CASE 
+                               WHEN b.u_id IS NOT NULL THEN u.u_fname
+                               ELSE JSON_UNQUOTE(JSON_EXTRACT(b.customer_details, '$.name'))
+                           END as client_name,
+                           CASE 
+                               WHEN b.u_id IS NOT NULL THEN u.u_phone
+                               ELSE JSON_UNQUOTE(JSON_EXTRACT(b.customer_details, '$.phone'))
+                           END as client_phone,
+                           d.d_fname, d.d_lname, d.d_phone, d.d_license,
+                           v.v_reg_no
+                           FROM tms_bookings b 
+                           LEFT JOIN tms_user u ON b.u_id = u.u_id 
+                           JOIN tms_driver d ON b.d_id = d.d_id
+                           JOIN tms_vehicle v ON b.v_id = v.v_id
+                           WHERE b.b_id = ?";
           $booking_stmt = $mysqli->prepare($booking_query);
           $booking_stmt->bind_param('i', $b_id);
           $booking_stmt->execute();
@@ -70,7 +78,7 @@
           try {
               $twilio = new Client($sid, $token);
               $message = $twilio->messages->create(
-                  $booking['u_phone'], // to
+                  $booking['client_phone'], // using the combined phone field
                   array(
                       "messagingServiceSid" => $messagingServiceSid,
                       "body" => $message_body
@@ -90,10 +98,19 @@
 
   // Fetch booking details
   $b_id = $_GET['b_id'];
-  $ret = "select b.*, u.u_fname, u.u_lname, u.u_phone, u.u_addr 
-          from tms_bookings b 
-          join tms_user u on b.u_id = u.u_id 
-          where b.b_id=? and b.d_id=?";
+  $ret = "SELECT b.*, 
+          CASE 
+              WHEN b.u_id IS NOT NULL THEN u.u_fname
+              ELSE JSON_UNQUOTE(JSON_EXTRACT(b.customer_details, '$.name'))
+          END as client_name,
+          CASE 
+              WHEN b.u_id IS NOT NULL THEN u.u_phone
+              ELSE JSON_UNQUOTE(JSON_EXTRACT(b.customer_details, '$.phone'))
+          END as client_phone,
+          u.u_addr
+          FROM tms_bookings b 
+          LEFT JOIN tms_user u ON b.u_id = u.u_id 
+          WHERE b.b_id=? AND b.d_id=?";
   $stmt = $mysqli->prepare($ret);
   $stmt->bind_param('ii', $b_id, $d_id);
   $stmt->execute();
@@ -141,15 +158,15 @@
                          <form method="POST">
                              <div class="form-group">
                                  <label>Client Name</label>
-                                 <input type="text" readonly value="<?php echo $row->u_fname . ' ' . $row->u_lname; ?>" class="form-control">
+                                 <input type="text" readonly value="<?php echo $row->client_name; ?>" class="form-control">
                              </div>
                              <div class="form-group">
                                  <label>Client Phone</label>
-                                 <input type="text" readonly value="<?php echo $row->u_phone; ?>" class="form-control">
+                                 <input type="text" readonly value="<?php echo $row->client_phone; ?>" class="form-control">
                              </div>
                              <div class="form-group">
                                  <label>Client Address</label>
-                                 <input type="text" readonly value="<?php echo $row->u_addr; ?>" class="form-control">
+                                 <input type="text" readonly value="<?php echo $row->u_addr ?? 'Not provided'; ?>" class="form-control">
                              </div>
                              <div class="form-group">
                                  <label>Pickup Location</label>

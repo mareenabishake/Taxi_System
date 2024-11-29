@@ -5,15 +5,29 @@ include('vendor/inc/checklogin.php');
 check_login();
 //$oid = $_SESSION['o_id'];
 
+// Check if this is for a registered or unregistered user
+$is_registered = isset($_GET['u_id']);
+
 // Add Booking
 if (isset($_POST['book_vehicle'])) {
-    $u_id = $_GET['u_id'];
     $v_id = $_POST['v_id'];
     $d_id = $_POST['d_id'];
     $b_date = $_POST['b_date'];
     $pickup_location = $_POST['pickup_location'];
     $return_location = $_POST['return_location'];
-    $b_status = 'Pending'; // Set status to 'Pending' automatically
+    $b_status = 'Pending';
+
+    if ($is_registered) {
+        $u_id = $_GET['u_id'];
+        $customer_details = null;
+    } else {
+        $u_id = null;
+        // Format customer details as JSON string
+        $customer_details = json_encode([
+            'name' => $_POST['customer_name'],
+            'phone' => $_POST['customer_phone']
+        ], JSON_UNESCAPED_UNICODE);
+    }
 
     // Fetch vehicle cost
     $cost_query = "SELECT v_cost FROM tms_vehicle WHERE v_id = ?";
@@ -40,9 +54,12 @@ if (isset($_POST['book_vehicle'])) {
     }
 
     // Prepare SQL query for tms_bookings table
-    $query = "INSERT INTO tms_bookings (u_id, v_id, d_id, b_date, pickup_location, return_location, distance, hire, b_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $query = "INSERT INTO tms_bookings (u_id, v_id, d_id, b_date, pickup_location, return_location, distance, hire, b_status, customer_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('iiissssds', $u_id, $v_id, $d_id, $b_date, $pickup_location, $return_location, $distance, $hire, $b_status);
+    $stmt->bind_param('iiissssds' . ($is_registered ? 's' : 's'), 
+        $u_id, $v_id, $d_id, $b_date, $pickup_location, $return_location, 
+        $distance, $hire, $b_status, $customer_details
+    );
     $stmt->execute();
 
     if ($stmt) {
@@ -126,82 +143,92 @@ function calculateDistance($origin, $destination, $apiKey) {
                         Add Booking
                     </div>
                     <div class="card-body">
-                        <!--  User Form -->
-                        <?php
-                        $aid = $_GET['u_id'];
-                        $ret = "SELECT * FROM tms_user WHERE u_id=?";
-                        $stmt = $mysqli->prepare($ret);
-                        $stmt->bind_param('i', $aid);
-                        $stmt->execute();
-                        $res = $stmt->get_result();
-                        while ($row = $res->fetch_object()) {
+                        <?php if ($is_registered) { 
+                            // Your existing registered user form code
+                            $aid = $_GET['u_id'];
+                            $ret = "SELECT * FROM tms_user WHERE u_id=?";
+                            $stmt = $mysqli->prepare($ret);
+                            $stmt->bind_param('i', $aid);
+                            $stmt->execute();
+                            $res = $stmt->get_result();
+                            while ($row = $res->fetch_object()) {
                         ?>
-
-                        <form method="POST">
-                            <div class="form-group">
-                                <label for="First Name">First Name</label>
-                                <input type="text" value="<?php echo $row->u_fname; ?>" required class="form-control" id="First Name" name="u_fname">
-                            </div>
-                            <div class="form-group">
-                                <label for="Last Name">Last Name</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_lname; ?>" id="Last Name" name="u_lname">
-                            </div>
-                            <div class="form-group">
-                                <label for="Contact">Contact</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_phone; ?>" id="Contact" name="u_phone">
-                            </div>
-                            <div class="form-group">
-                                <label for="Address">Address</label>
-                                <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" id="Address" name="u_addr">
-                            </div>
-                            <div class="form-group">
-                                <label for="pickup_location">Pickup Point</label>
-                                <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="Vehicle Category">Vehicle Category</label>
-                                <select class="form-control" name="v_category" id="v_category" required>
-                                    <option value="">Select Vehicle Category</option>
-                                    <?php
-                                    $query = "SELECT DISTINCT v_category FROM tms_vehicle WHERE v_status='Available'";
-                                    $result = $mysqli->query($query);
-                                    while ($row = $result->fetch_assoc()) {
-                                        echo "<option value='" . $row['v_category'] . "'>" . $row['v_category'] . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="Vehicle Registration">Vehicle Registration Number</label>
-                                <select class="form-control" name="v_id" id="v_id" required>
-                                    <option value="">Select Vehicle Registration</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="driver_name">Driver</label>
-                                <input type="text" class="form-control" id="driver_name" name="driver_name" readonly>
-                                <input type="hidden" id="d_id" name="d_id">
-                            </div>
-                            <div class="form-group">
-                                <label for="Booking Date">Booking Date</label>
-                                <input type="date" class="form-control" id="b_date" name="b_date" required>
-                            </div>
-                            <input type="hidden" id="v_cost" name="v_cost">
-                            <div class="form-group">
-                                <label for="return_location">Drop Point</label>
-                                <input type="text" class="form-control" id="return_location" name="return_location" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="distance">Total Distance (km)</label>
-                                <input type="number" step="0.01" class="form-control" id="distance" name="distance" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="hire">Total Hire</label>
-                                <input type="number" step="0.01" class="form-control" id="hire" name="hire" readonly>
-                            </div>
-                            <button type="submit" name="book_vehicle" class="btn btn-success">Confirm Booking</button>
-                        </form>
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label for="First Name">First Name</label>
+                                    <input type="text" value="<?php echo $row->u_fname; ?>" readonly class="form-control" id="First Name" name="u_fname">
+                                </div>
+                                <div class="form-group">
+                                    <label for="Last Name">Last Name</label>
+                                    <input type="text" class="form-control" value="<?php echo $row->u_lname; ?>" readonly id="Last Name" name="u_lname">
+                                </div>
+                                <div class="form-group">
+                                    <label for="Contact">Contact</label>
+                                    <input type="text" class="form-control" value="<?php echo $row->u_phone; ?>" readonly id="Contact" name="u_phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="Address">Address</label>
+                                    <input type="text" class="form-control" value="<?php echo $row->u_addr; ?>" readonly id="Address" name="u_addr">
+                                </div>
+                        <?php } } else { ?>
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label for="First Name">Name</label>
+                                    <input type="text" class="form-control" id="First Name" name="customer_name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Contact">Contact</label>
+                                    <input type="text" class="form-control" id="Contact" name="customer_phone" required>
+                                </div>
                         <?php } ?>
+                                <!-- Common form fields for both registered and unregistered users -->
+                                <div class="form-group">
+                                    <label for="pickup_location">Pickup Point</label>
+                                    <input type="text" class="form-control" id="pickup_location" name="pickup_location" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Vehicle Category">Vehicle Category</label>
+                                    <select class="form-control" name="v_category" id="v_category" required>
+                                        <option value="">Select Vehicle Category</option>
+                                        <?php
+                                        $query = "SELECT DISTINCT v_category FROM tms_vehicle WHERE v_status='Available'";
+                                        $result = $mysqli->query($query);
+                                        while ($row = $result->fetch_assoc()) {
+                                            echo "<option value='" . $row['v_category'] . "'>" . $row['v_category'] . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Vehicle Registration">Vehicle Registration Number</label>
+                                    <select class="form-control" name="v_id" id="v_id" required>
+                                        <option value="">Select Vehicle Registration</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="driver_name">Driver</label>
+                                    <input type="text" class="form-control" id="driver_name" name="driver_name" readonly>
+                                    <input type="hidden" id="d_id" name="d_id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="Booking Date">Booking Date</label>
+                                    <input type="date" class="form-control" id="b_date" name="b_date" required>
+                                </div>
+                                <input type="hidden" id="v_cost" name="v_cost">
+                                <div class="form-group">
+                                    <label for="return_location">Drop Point</label>
+                                    <input type="text" class="form-control" id="return_location" name="return_location" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="distance">Total Distance (km)</label>
+                                    <input type="number" step="0.01" class="form-control" id="distance" name="distance" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="hire">Total Hire</label>
+                                    <input type="number" step="0.01" class="form-control" id="hire" name="hire" readonly>
+                                </div>
+                                <button type="submit" name="book_vehicle" class="btn btn-success">Confirm Booking</button>
+                            </form>
                     </div>
                 </div>
 
