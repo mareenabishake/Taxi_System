@@ -127,7 +127,6 @@
                                             }
                                             ?>
                                         </td>
-                                        <td>
                                             <?php if($row->b_status == "Pending"){ ?>
                                                 <a href="driver-approve-booking.php?b_id=<?php echo $row->b_id;?>" class="badge badge-success"><i class="fa fa-check"></i> Accept</a>
                                             <?php } elseif($row->b_status == "Ongoing") { ?>
