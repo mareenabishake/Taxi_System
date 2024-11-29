@@ -25,7 +25,7 @@ if (isset($_POST['book_vehicle'])) {
     $v_cost = $cost_row['v_cost'];
     $cost_stmt->close();
 
-    // Use your Google Maps API key here
+    // Google Maps API key
     $apiKey = 'AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk';
     
     $distance = calculateDistance($pickup_location, $return_location, $apiKey);

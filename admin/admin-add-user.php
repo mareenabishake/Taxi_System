@@ -70,6 +70,7 @@ if (isset($_POST['add_user'])) {
     $u_fname = $_POST['u_fname'];
     $u_lname = $_POST['u_lname'];
     $u_phone = $_POST['u_phone'];
+    $u_license_or_ID = $_POST['u_license_or_ID'];
     $u_addr = $_POST['u_addr'];
     $u_email = $_POST['u_email'];
     $u_pwd = $_POST['u_pwd'];
@@ -82,12 +83,12 @@ if (isset($_POST['add_user'])) {
         $hashed_pwd = md5($u_pwd);
 
         // Prepare the SQL query
-        $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO tms_user (u_fname, u_lname, u_phone, u_license_or_ID, u_addr, u_email, u_pwd) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
 
         if ($stmt) {
             // Bind the parameters to the SQL query
-            $stmt->bind_param('ssssss', $u_fname, $u_lname, $u_phone, $u_addr, $u_email, $hashed_pwd);
+            $stmt->bind_param('sssssss', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $hashed_pwd);
 
             if ($stmt->execute()) {
                 if (sendWelcomeEmail($u_email, $u_fname . ' ' . $u_lname, $u_pwd)) {
@@ -174,6 +175,10 @@ $mysqli->close();
                             <div class="form-group">
                                 <label for="u_phone">Contact</label>
                                 <input type="text" class="form-control" id="u_phone" name="u_phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="u_license_or_ID">NIC Number</label>
+                                <input type="text" class="form-control" id="u_license_or_ID" name="u_license_or_ID">
                             </div>
                             <div class="form-group">
                                 <label for="u_addr">Address</label>

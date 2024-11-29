@@ -1,15 +1,17 @@
 <?php
+// Initialize session and include required files
 session_start();
 include('vendor/inc/config.php');
 include('vendor/inc/checklogin.php');
 check_login();
 $aid = $_SESSION['u_id'];
 
-// Add Booking
+// Handle vehicle booking form submission
 if (isset($_POST['book_vehicle'])) {
+    // Get form data and URL parameters
     $u_id = $_SESSION['u_id'];
     $v_id = $_GET['v_id'];
-    $d_id = $_GET['d_id']; // Retrieve d_id from URL
+    $d_id = $_GET['d_id']; // Driver ID from URL
     $b_date = $_POST['b_date'];
     $pickup_location = $_POST['pickup_location'];
     $return_location = $_POST['return_location'];
@@ -17,16 +19,16 @@ if (isset($_POST['book_vehicle'])) {
     $hire = $_POST['hire'];
     $b_status = 'Pending';
 
-    // Validate all required fields
+    // Validate that all required fields are filled
     if (empty($u_id) || empty($v_id) || empty($b_date) || empty($pickup_location) || 
-        empty($return_location) || empty($distance) || empty($hire) || empty($d_id)) { // Add d_id to validation
+        empty($return_location) || empty($distance) || empty($hire) || empty($d_id)) {
         $err = "All fields are required. Please ensure you've calculated the hire before booking.";
     } else {
-        // Convert distance and hire to float to ensure they're not null
+        // Convert numeric values to proper format
         $distance = floatval($distance);
         $hire = floatval($hire);
 
-        // Insert the booking into tms_bookings
+        // Prepare and execute booking insertion query
         $query = "INSERT INTO tms_bookings (u_id, v_id, b_date, pickup_location, return_location, distance, hire, b_status, d_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Add d_id to the query
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param('iissssdsd', $u_id, $v_id, $b_date, $pickup_location, $return_location, $distance, $hire, $b_status, $d_id); // Bind d_id parameter
@@ -40,6 +42,7 @@ if (isset($_POST['book_vehicle'])) {
     }
 }
 
+// Helper function to get driver's full name from database
 function getDriverName($mysqli, $d_id) {
     $query = "SELECT d_fname, d_lname FROM tms_driver WHERE d_id = ?";
     $stmt = $mysqli->prepare($query);
@@ -56,7 +59,7 @@ function getDriverName($mysqli, $d_id) {
     }
 }
 
-// Get user's location
+// Fetch user's default location from database
 $user_query = "SELECT u_location FROM tms_user WHERE u_id = ?";
 $user_stmt = $mysqli->prepare($user_query);
 $user_stmt->bind_param('i', $aid);
@@ -179,11 +182,14 @@ $user_stmt->close();
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCz6zabR9k2B9hba52HNoHciRVW4B3gGbk&libraries=places"></script>
     <script>
+    // Calculate total hire cost based on distance and vehicle cost per km
     function calculateHire() {
+        // Get input values
         var pickup = document.getElementById('pickup_location').value;
         var drop = document.getElementById('return_location').value;
         var v_cost = parseFloat(document.getElementById('v_cost').value);
 
+        // Use Google Distance Matrix API to calculate distance
         if (pickup && drop && !isNaN(v_cost)) {
             var service = new google.maps.DistanceMatrixService();
             service.getDistanceMatrix(
@@ -219,8 +225,9 @@ $user_stmt->close();
         }
     }
 
-    // Initialize Google Places Autocomplete for pickup and drop inputs
+    // Initialize Google Places Autocomplete for location inputs
     function initAutocomplete() {
+        // Set up autocomplete for pickup and return location fields
         var pickupInput = document.getElementById('pickup_location');
         var returnInput = document.getElementById('return_location');
 
@@ -231,8 +238,9 @@ $user_stmt->close();
         returnInput.addEventListener('change', calculateHire);
     }
 
-    // Calculate hire on page load if both locations are set
+    // Initialize page functionality
     window.onload = function() {
+        // Set up autocomplete and calculate initial hire if locations are set
         initAutocomplete();
         if (document.getElementById('pickup_location').value && 
             document.getElementById('return_location').value) {

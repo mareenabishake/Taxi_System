@@ -11,7 +11,7 @@
 
   // Twilio credentials
   $sid = "AC5ffd837912b29c046a168da0e3d95869";
-  $token = "e33f40d8ff9f686a5f981cde7adfe6ed";
+  $token = "fc71799a41c70659919e4ff0f5f2e315";
   $messagingServiceSid = "MG4bda8af2a2da8ce9070908cda97e9c35";
 
   // Accept Trip

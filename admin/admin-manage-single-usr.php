@@ -11,16 +11,17 @@ if (isset($_POST['update_user'])) {
     $u_fname = $_POST['u_fname'];
     $u_lname = $_POST['u_lname'];
     $u_phone = $_POST['u_phone'];
+    $u_license_or_ID = $_POST['u_license_or_ID'];
     $u_addr = $_POST['u_addr'];
     $u_email = $_POST['u_email'];
 
     // Prepare the SQL query for update
-    $query = "UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_addr=?, u_email=? WHERE u_id=?";
+    $query = "UPDATE tms_user SET u_fname=?, u_lname=?, u_phone=?, u_license_or_ID=?, u_addr=?, u_email=? WHERE u_id=?";
     $stmt = $mysqli->prepare($query);
 
     if ($stmt) {
         // Bind the parameters to the SQL query
-        $stmt->bind_param('sssssi', $u_fname, $u_lname, $u_phone, $u_addr, $u_email, $u_id);
+        $stmt->bind_param('ssssssi', $u_fname, $u_lname, $u_phone, $u_license_or_ID, $u_addr, $u_email, $u_id);
 
         
         if ($stmt->execute()) {
@@ -114,6 +115,11 @@ if (isset($_POST['update_user'])) {
                                 <label for="Contact">Contact</label>
                                 <input type="text" class="form-control" value="<?php echo $row->u_phone; ?>"
                                     id="Contact" name="u_phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="License">NIC Number</label>
+                                <input type="text" class="form-control" value="<?php echo $row->u_license_or_ID; ?>"
+                                    id="License" name="u_license_or_ID">
                             </div>
                             <div class="form-group">
                                 <label for="Address">Address</label>
